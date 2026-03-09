@@ -1,6 +1,6 @@
 # Tau The Difference
 
-Separate Higgs to Tau Tau decays from Genuine and Fake Backgrounds.
+Separate Higgs to Tau Tau decays from Genuine and Fake Backgrounds – now with separate gluon-gluon fusion, vector boson fusion, and Higgsstrahlung categories. 
 
 Channels currently supported:
 - Fully hadronic ($\tau_h\tau_h$)
