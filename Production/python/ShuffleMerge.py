@@ -103,26 +103,30 @@ def normalise(merged_df):
     # Initialise class_weight
     merged_df['class_weight'] = merged_df['weight']
     # Target sum of weights to be N events
-    w_sum_target = len(merged_df)/3
+    w_sum_target = len(merged_df) / 4
     logger.debug(f"\nTotal number of events is {len(merged_df)} so targetting sum of class weights to be {w_sum_target:.1f} for each category\n")
     # Use only positive weights for class normalisation
     # Sum existing physics weights accross each category
     w_sum_taus = merged_df.loc[(merged_df['class_label'] == 0) & (merged_df['weight'] > 0), 'weight'].sum()
-    w_sum_signal = merged_df.loc[(merged_df['class_label'] == 1) & (merged_df['weight'] > 0), 'weight'].sum()
+    w_sum_ggH = merged_df.loc[(merged_df['class_label'] == 11) & (merged_df['weight'] > 0), 'weight'].sum()
+    w_sum_qqH = merged_df.loc[(merged_df['class_label'] == 12) & (merged_df['weight'] > 0), 'weight'].sum()
     w_sum_bkg = merged_df.loc[(merged_df['class_label'] == 2) & (merged_df['weight'] > 0), 'weight'].sum()
-    w_sum_cat = [w_sum_taus, w_sum_signal, w_sum_bkg]
+    w_sum_cat = [w_sum_taus, w_sum_ggH, w_sum_qqH, w_sum_bkg]
     logger.debug(f"Sum of original weights for Genuine Taus [label 0]: {w_sum_taus:.2f}")
-    logger.debug(f"Sum of original weights for Signal [label 1]: {w_sum_signal:.2f}")
+    logger.debug(f"Sum of original weights for ggH [label 11]: {w_sum_ggH:.2f}")
+    logger.debug(f"Sum of original weights for qqH [label 12]: {w_sum_qqH:.2f}")
     logger.debug(f"Sum of original weights for Fakes [label 2]: {w_sum_bkg:.2f}")
     # Calculate normalisation weights
     w_cat = [w_sum_target/w for w in w_sum_cat]
     logger.debug(f"Sum of original weights for Genuine Taus [label 0]: {w_sum_cat[0]:.2f} -> assigned category weight {w_cat[0]}")
-    logger.debug(f"Sum of original weights for Signal [label 1]: {w_sum_cat[1]:.2f} -> assigned category weight {w_cat[1]}")
-    logger.debug(f"Sum of original weights for Background  [label 2]: {w_sum_cat[2]:.2f} -> assigned category weight {w_cat[2]}\n")
+    logger.debug(f"Sum of original weights for ggH [label 11]: {w_sum_cat[1]:.2f} -> assigned category weight {w_cat[1]}")
+    logger.debug(f"Sum of original weights for qqH [label 12]: {w_sum_cat[2]:.2f} -> assigned category weight {w_cat[2]}")
+    logger.debug(f"Sum of original weights for Fakes [label 2]: {w_sum_cat[3]:.2f} -> assigned category weight {w_cat[3]}\n")
     # Apply appropriate NN weight
     merged_df.loc[merged_df['class_label'] == 0, 'class_weight'] *= w_cat[0]
-    merged_df.loc[merged_df['class_label'] == 1, 'class_weight'] *= w_cat[1]
-    merged_df.loc[merged_df['class_label'] == 2, 'class_weight'] *= w_cat[2]
+    merged_df.loc[merged_df['class_label'] == 11, 'class_weight'] *= w_cat[1]
+    merged_df.loc[merged_df['class_label'] == 12, 'class_weight'] *= w_cat[2]
+    merged_df.loc[merged_df['class_label'] == 2, 'class_weight'] *= w_cat[3]
     return merged_df
 
 

@@ -10,9 +10,9 @@ Datasets:
   'DYto2L': {gen_match: ['lep', 'jet'], label: [2, 2], proc_id: [12, 13]}
   'DYto2Tau': {gen_match: ['tau'], label: [0], proc_id: [11]}
   'EWKZ': {gen_match: ['tau', 'lep', 'jet'], label: [0, 2, 2], proc_id: [14, 15, 16]}
-  'ggH': {gen_match: false, label: 1, proc_id: 100}
-  'VBFH': {gen_match: false, label: 1, proc_id: 101}
-  'VH': {gen_match: false, label: 1, proc_id: 102}
+  'ggH': {gen_match: false, label: 11, proc_id: 100}
+  'VBFH': {gen_match: false, label: 12, proc_id: 101}
+  'VH': {gen_match: false, label: 12, proc_id: 102}
   'TTBar': {gen_match: ['tau', 'jet'], label: [0, 2], proc_id: [21, 23]}
   'ST': {gen_match: ['tau', 'jet'], label: [0, 2], proc_id: [31, 33]}
   'WJets': {gen_match: ['jet'], label: [2], proc_id: [43]}

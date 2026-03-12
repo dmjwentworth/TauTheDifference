@@ -1,10 +1,13 @@
 import xgboost as xgb
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 import os
 import yaml
 import argparse
+
+le = LabelEncoder()
 
 def get_args():
     parser = argparse.ArgumentParser(description="XGBoost Classifier Evaluation")
@@ -30,6 +33,7 @@ def eval_model(cfg, parity):
     x_eval = eval_df[feature_cfg['train']]
     proc_id = eval_df['process_id'] # store identity
     y_eval = eval_df['class_label'] # class label
+    y_eval_encoded = le.fit_transform(y_eval) # encode class labels
     w_eval = eval_df[feature_cfg['weight']] #  NN weight
     w_plot = eval_df['weight'] # NOT the NN weight (normalisation removed)
 
@@ -42,17 +46,18 @@ def eval_model(cfg, parity):
 
     y_pred_eval = model.predict_proba(x_eval)
     y_pred_eval_labels = y_pred_eval.argmax(axis=1)
+    y_pred_eval_labels = le.inverse_transform(y_pred_eval_labels) # decode predicted labels
     accuracy_eval = accuracy_score(y_eval, y_pred_eval_labels, sample_weight=w_eval)
     print("Evaluation Accuracy:", accuracy_eval)
-
 
     # store predictions as a new df
     df_res = pd.DataFrame()
     df_res['process_id'] = proc_id # identify different components for plotting...
     df_res['class_label'] = y_eval # class
-    df_res['pred_0'] = y_pred_eval[:, 0]
-    df_res['pred_1'] = y_pred_eval[:, 1]
-    df_res['pred_2'] = y_pred_eval[:, 2]
+    df_res['pred_genuine'] = y_pred_eval[:, 0]
+    df_res['pred_fake'] = y_pred_eval[:, 1]
+    df_res['pred_ggH'] = y_pred_eval[:, 2]
+    df_res['pred_qqH'] = y_pred_eval[:, 3]
     df_res['pred_label'] = y_pred_eval_labels # max proba label
     df_res['weight'] = w_plot
     df_res['NN_weight'] = w_eval

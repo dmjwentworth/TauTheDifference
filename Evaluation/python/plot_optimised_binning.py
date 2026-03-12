@@ -13,6 +13,7 @@ def get_args():
     parser.add_argument('--channel', type=str, help="Channel to train", required=True)
     return parser.parse_args()
 
+
 # Plotting style
 plt.style.use(hep.style.ROOT)
 plt.rcParams.update({"font.size": 14})
@@ -23,6 +24,7 @@ lumi = 62.4
 def AMS(S, B, b0=0):
     ams = np.sqrt(2*((S+B+b0)*np.log(1+S/(B+b0))-S))
     return ams
+
 
 # old style plot for tt
 # def plot_tt(cfg, parity):
@@ -97,8 +99,9 @@ def plot_score(cfg, parity, channel):
     pred_df = pd.read_parquet(os.path.join(model_dir, 'EVAL_predictions.parquet'))
     process_id_counts = pred_df['process_id'].value_counts()
 
-    # Select events classified as Higgs
-    pred_df = pred_df[pred_df['pred_label'] == 1]
+    # Select events classified as Higgs (ggH and qqH)
+    pred_df = pred_df.loc[(pred_df['pred_label'] == 11) | (pred_df['pred_label'] == 12)]
+    pred_df['pred_1'] = pred_df['pred_ggH'] + pred_df['pred_qqH'] # combine ggH and qqH scores for binning
 
     # Split into individual classes (by process ID)
     # genuine taus
@@ -122,7 +125,7 @@ def plot_score(cfg, parity, channel):
     # Split into n bins with equal number of weighted signal
     n_bins = 5
     w_perc = DescrStatsW(higgs['pred_1'], weights=higgs['weight']).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
-    bins = np.concatenate([[0.33], np.array(w_perc), [1]])
+    bins = np.concatenate([[0.25], np.array(w_perc), [1]])
 
     # Plot the optimised distribution
     print(f"Plotting optimised distribution for Higgs")
@@ -165,7 +168,7 @@ def plot_score(cfg, parity, channel):
     print(f"Overall AMS for {model_dir.split('/')[-1]}: {np.sqrt(np.sum(sig_AMS**2))}")
 
     # Labels and AMS display
-    ax.set_xlim(0.33, 1)
+    ax.set_xlim(0.25, 1)
     if channel=='mt':
         box_info = rf"""AMS: {np.sqrt(np.sum(sig_AMS**2)):.2f}
 {parity} Events
@@ -189,7 +192,6 @@ $\tau_h\tau_h$ channel"""
     ax.set_yscale('log')
     ax.set_ylim(1, 1000*histo.get_max())
     plt.savefig(os.path.join(model_dir, 'plots', f"Optimised_Higgs_score.pdf"))
-
 
 
 if __name__ == "__main__":

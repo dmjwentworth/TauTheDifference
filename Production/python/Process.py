@@ -117,17 +117,22 @@ def process_samples(cfg, era, extrapolateQCD=False, nosubtraction=False):
                         dataset_file = os.path.join(cfg['Setup']['skim_output'], era,
                                         channel, dataset, f'merged_skimmed_GEN{gen_match}.parquet')
                     logger.debug(f"Loading {dataset_file.split('/')[-1]}")
-                    df = pd.read_parquet(dataset_file)
+                    
+                    if not os.path.exists(dataset_file):
+                        logger.warning(f"File {dataset_file} not found. Skipping.")
+                        continue
+                    else:
+                        df = pd.read_parquet(dataset_file)
 
-                    if process == 'EWKZ': # scale 22EE EWKZ to account for missing in other eras
-                        df = reweight_ewkz(df)
+                        if process == 'EWKZ': # scale 22EE EWKZ to account for missing in other eras
+                            df = reweight_ewkz(df)
 
-                    # Add labels (class, process, era)
-                    df = label_df(df, process_options['label'][index_gen], process_options['proc_id'][index_gen], era, gen_match)
-                    # Reweight the dataset (can only have MC here anyway since gen matched)
-                    df = reweight_mc(df, dataset_info['x_sec'], dataset_info['n_eff'], era_cfg['Params']['Luminosity'])
-                    # Save the dataframe
-                    processed_datasets.append(save_skims(df, cfg, era, dataset, gen_match=gen_match, extrapolate=extrapolateQCD))
+                        # Add labels (class, process, era)
+                        df = label_df(df, process_options['label'][index_gen], process_options['proc_id'][index_gen], era, gen_match)
+                        # Reweight the dataset (can only have MC here anyway since gen matched)
+                        df = reweight_mc(df, dataset_info['x_sec'], dataset_info['n_eff'], era_cfg['Params']['Luminosity'])
+                        # Save the dataframe
+                        processed_datasets.append(save_skims(df, cfg, era, dataset, gen_match=gen_match, extrapolate=extrapolateQCD))
             # INCLUSIVE GEN SAMPLES
             else:
                 logger.debug(f"No gen matching requested for {dataset}")
@@ -141,20 +146,25 @@ def process_samples(cfg, era, extrapolateQCD=False, nosubtraction=False):
                     dataset_file = os.path.join(cfg['Setup']['skim_output'], era,
                                     channel, dataset, f'merged_skimmed_GENinc.parquet')
                 logger.debug(f"Loading {dataset_file.split('/')[-1]}")
-                df = pd.read_parquet(dataset_file)
-                # Add labels (class, process, era)
-                df = label_df(df, process_options['label'], process_options['proc_id'], era)
-                if 'DATA' not in process: # Monte Carlo
-                    # Reweight the dataset
-                    df = reweight_mc(df, dataset_info['x_sec'], dataset_info['n_eff'], era_cfg['Params']['Luminosity'])
-                    # Apply filter efficiency
-                    if 'Filtered' in dataset:
-                        df = apply_filter(df, dataset_info['filter_eff'])
-                elif (not extrapolateQCD) and (not nosubtraction): # Same sign QCD estimate
-                    logger.warning(f'Adding QCD factor of {dataset_info["extrapolation_factor"]}')
-                    df['weight'] *= dataset_info['extrapolation_factor']
-                # Save the dataframe
-                processed_datasets.append(save_skims(df, cfg, era, dataset, gen_match="inc", extrapolate=extrapolateQCD))
+                
+                if not os.path.exists(dataset_file):
+                    logger.warning(f"File {dataset_file} not found. Skipping.")
+                    continue
+                else:
+                    df = pd.read_parquet(dataset_file)
+                    # Add labels (class, process, era)
+                    df = label_df(df, process_options['label'], process_options['proc_id'], era)
+                    if 'DATA' not in process: # Monte Carlo
+                        # Reweight the dataset
+                        df = reweight_mc(df, dataset_info['x_sec'], dataset_info['n_eff'], era_cfg['Params']['Luminosity'])
+                        # Apply filter efficiency
+                        if 'Filtered' in dataset:
+                         df = apply_filter(df, dataset_info['filter_eff'])
+                    elif (not extrapolateQCD) and (not nosubtraction): # Same sign QCD estimate
+                        logger.warning(f'Adding QCD factor of {dataset_info["extrapolation_factor"]}')
+                        df['weight'] *= dataset_info['extrapolation_factor']
+                    # Save the dataframe
+                    processed_datasets.append(save_skims(df, cfg, era, dataset, gen_match="inc", extrapolate=extrapolateQCD))
         print('\n')
         print('='*140)
     # Return the list of processed datasets

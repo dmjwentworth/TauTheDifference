@@ -66,10 +66,13 @@ def preselect_samples(cfg, era, extrapolateQCD=False):
         for dataset, dataset_info in process_cfg[process].items():
             print('-'*140)
             logger.info(f"Processing {dataset}")
-            # Load the dataset
-            dataset_file = os.path.join(cfg['Setup']['input'], era,
-                                channel, dataset, 'nominal') # can just read in whole directory instead of merged.parquet')
-            df = pd.read_parquet(dataset_file)
+            # Load the dataset, which may be split into multiple parquet files
+            dataset_files = glob(os.path.join(cfg['Setup']['input'], era, channel, dataset, 'nominal', '*.parquet'))
+            if len(dataset_files) == 0:
+                logger.warning(f"No files found for {dataset}")
+                continue
+            else:
+                df = pd.concat([pd.read_parquet(path) for path in dataset_files], ignore_index=True)
             # Apply general selections and trigger matching
             # 29/01 Now drop at point of training
             # df = selector.check_sign_weights(df) # drop negative weights (affect training)

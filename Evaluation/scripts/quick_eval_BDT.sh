@@ -6,6 +6,6 @@ echo ""
 echo "------------------------------------"
 echo ""
 # Plot evaluation metrics
-python ../python/plot_optimised_bining.py
+python ../python/plot_optimised_binning.py
 echo ""
 echo "------------------------------------"

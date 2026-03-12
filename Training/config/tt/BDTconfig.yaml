@@ -1,6 +1,6 @@
 Setup:
-  input_path: '/vols/cms/lcr119/offline/HiggsCP/data/prod_feb/ShuffleMerge/tt'
-  model_outputs: 'XGB_Models/prod_feb/tt'
+  input_path: '/vols/cms/dmw25/TauTheDifference/Production/.output/ShuffleMerge/qqH/tt'
+  model_outputs: 'XGB_Models/qqH/tt'
   model_dir_name: 'model_tt'
 
 param: {

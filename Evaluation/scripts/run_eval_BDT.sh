@@ -10,7 +10,7 @@ python ../python/plot_scores.py
 echo ""
 echo "------------------------------------"
 echo ""
-python ../python/plot_optimised_bining.py
+python ../python/plot_optimised_binning.py
 echo ""
 echo "------------------------------------"
 echo ""
