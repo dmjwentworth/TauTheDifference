@@ -15,6 +15,7 @@ def get_args():
     parser = argparse.ArgumentParser(description="XGBoost Classifier Training")
     parser.add_argument('--channel', type=str, help="Channel to train", required=True)
     # parser.add_argument('--cut', type=str, help="VSjet cut to be used", required=False)
+    parser.add_argument('--config', type=str, help='Name of config file (without .yaml extension) in config/ directory', required=False)
     parser.add_argument('--gpu', action='store_true', help="Use GPU for training")
     return parser.parse_args()
 
@@ -212,17 +213,20 @@ def train_model(cfg, parity, gpu=False):
 
 def main():
     args = get_args()
+    if args.config is None:
+        print("No config file specified, using default config name 'BDTconfig.yaml'")
+        args.config = 'BDTconfig'
     if args.channel == 'tt': # Use VTight VSjet
         print("Training for tt channel (VTight Vsjet cut)")
-        cfg = yaml.safe_load(open("../config/tt/BDTconfig.yaml"))
+        cfg = yaml.safe_load(open(f"../config/tt/{args.config}.yaml"))
         cfg['Setup']['model_prefix'] = 'model' # begining of model json name (add parity after)
     elif args.channel == 'mt':
         print("Training for MuTau channel")
-        cfg = yaml.safe_load(open("../config/mt/BDTconfig.yaml"))
+        cfg = yaml.safe_load(open(f"../config/mt/{args.config}.yaml"))
         cfg['Setup']['model_prefix'] = 'model'
     elif args.channel == 'et':
         print("Training for ETau channel")
-        cfg = yaml.safe_load(open("../config/et/BDTconfig.yaml"))
+        cfg = yaml.safe_load(open(f"../config/et/{args.config}.yaml"))
         cfg['Setup']['model_prefix'] = 'model'
 
     # gpu setup

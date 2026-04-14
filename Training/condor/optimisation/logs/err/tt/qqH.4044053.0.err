@@ -1,0 +1,51 @@
+[I 2026-03-18 12:17:01,406] A new study created in RDB with name: qqH_hybrid
+/vols/cms/dmw25/TauTheDifference/Training/python/train_BDT.py:40: RuntimeWarning: invalid value encountered in divide
+  ams = np.sqrt(2*((S+B+b0)*np.log(1+S/(B+b0))-S))
+/vols/cms/dmw25/TauTheDifference/Training/python/train_BDT.py:40: RuntimeWarning: invalid value encountered in divide
+  ams = np.sqrt(2*((S+B+b0)*np.log(1+S/(B+b0))-S))
+/vols/cms/dmw25/TauTheDifference/Training/python/train_BDT.py:40: RuntimeWarning: invalid value encountered in divide
+  ams = np.sqrt(2*((S+B+b0)*np.log(1+S/(B+b0))-S))
+/vols/cms/dmw25/TauTheDifference/Training/python/train_BDT.py:40: RuntimeWarning: invalid value encountered in divide
+  ams = np.sqrt(2*((S+B+b0)*np.log(1+S/(B+b0))-S))
+[W 2026-03-18 12:17:55,162] Trial 1 failed with parameters: {'n_estimators': 353, 'lambda': 1.1410212877279639e-05, 'subsample': 0.20984200672778047, 'colsample_bytree': 0.5373833075856262, 'learning_rate': 0.6414118425312797, 'max_depth': 4, 'min_child_weight': 2} because of the following error: The value nan is not acceptable.
+[W 2026-03-18 12:17:55,162] Trial 1 failed with value np.float64(nan).
+[I 2026-03-18 12:18:03,260] Trial 3 finished with value: 2.083648355489091 and parameters: {'n_estimators': 391, 'lambda': 2.772648690483621e-08, 'subsample': 0.34693283200963376, 'colsample_bytree': 0.6499944500252288, 'learning_rate': 0.27381305005388606, 'max_depth': 3, 'min_child_weight': 6}. Best is trial 3 with value: 2.083648355489091.
+[I 2026-03-18 12:18:14,805] Trial 0 finished with value: 2.0894962519678977 and parameters: {'n_estimators': 429, 'lambda': 4.287951036311435e-08, 'subsample': 0.9789493673043046, 'colsample_bytree': 0.20075920209272705, 'learning_rate': 0.20305824238799422, 'max_depth': 4, 'min_child_weight': 7}. Best is trial 0 with value: 2.0894962519678977.
+[I 2026-03-18 12:18:20,300] Trial 5 finished with value: 2.0872265065728755 and parameters: {'n_estimators': 287, 'lambda': 5.894252642261761e-06, 'subsample': 0.8764912794927089, 'colsample_bytree': 0.9323915476280771, 'learning_rate': 0.3171523549860138, 'max_depth': 7, 'min_child_weight': 5}. Best is trial 0 with value: 2.0894962519678977.
+[I 2026-03-18 12:18:38,044] Trial 2 finished with value: 2.065833192152725 and parameters: {'n_estimators': 952, 'lambda': 0.00010032224954497651, 'subsample': 0.2652685408802656, 'colsample_bytree': 0.898673267489343, 'learning_rate': 0.41565866817512653, 'max_depth': 3, 'min_child_weight': 2}. Best is trial 0 with value: 2.0894962519678977.
+[I 2026-03-18 12:18:44,667] Trial 4 finished with value: 1.8632961699568846 and parameters: {'n_estimators': 568, 'lambda': 0.00023097743522835376, 'subsample': 0.34909665555339375, 'colsample_bytree': 0.6974987005120281, 'learning_rate': 0.26290644237177097, 'max_depth': 7, 'min_child_weight': 7}. Best is trial 0 with value: 2.0894962519678977.
+Traceback (most recent call last):
+  File "/vols/cms/dmw25/TauTheDifference/Training/python/searchBDTparams_hybrid.py", line 272, in <module>
+    main()
+  File "/vols/cms/dmw25/TauTheDifference/Training/python/searchBDTparams_hybrid.py", line 202, in main
+    study.optimize(
+  File "/vols/cms/dmw25/miniforge3/envs/TauTheDifference/lib/python3.12/site-packages/optuna/study/study.py", line 451, in optimize
+    _optimize(
+  File "/vols/cms/dmw25/miniforge3/envs/TauTheDifference/lib/python3.12/site-packages/optuna/study/_optimize.py", line 99, in _optimize
+    f.result()
+  File "/vols/cms/dmw25/miniforge3/envs/TauTheDifference/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/vols/cms/dmw25/miniforge3/envs/TauTheDifference/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/vols/cms/dmw25/miniforge3/envs/TauTheDifference/lib/python3.12/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/vols/cms/dmw25/miniforge3/envs/TauTheDifference/lib/python3.12/site-packages/optuna/study/_optimize.py", line 170, in _optimize_sequential
+    callback(study, frozen_trial)
+  File "/vols/cms/dmw25/TauTheDifference/Training/python/searchBDTparams_hybrid.py", line 22, in log_trial_result
+    best_value = "None" if study.best_trial.value is None else f"{study.best_trial.value:.6f}"
+                           ^^^^^^^^^^^^^^^^
+  File "/vols/cms/dmw25/miniforge3/envs/TauTheDifference/lib/python3.12/site-packages/optuna/study/study.py", line 157, in best_trial
+    return copy.deepcopy(self._storage.get_best_trial(self._study_id))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/vols/cms/dmw25/miniforge3/envs/TauTheDifference/lib/python3.12/site-packages/optuna/storages/_cached_storage.py", line 182, in get_best_trial
+    return self._backend.get_best_trial(study_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/vols/cms/dmw25/miniforge3/envs/TauTheDifference/lib/python3.12/site-packages/optuna/storages/_rdb/storage.py", line 913, in get_best_trial
+    trial = models.TrialModel.find_max_value_trial(study_id, 0, session)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/vols/cms/dmw25/miniforge3/envs/TauTheDifference/lib/python3.12/site-packages/optuna/storages/_rdb/models.py", line 214, in find_max_value_trial
+    raise ValueError(NOT_FOUND_MSG)
+ValueError: Record does not exist.
+ERROR conda.cli.main_run:execute(127): `conda run python searchBDTparams_hybrid.py --channel=tt --n_trials=750 --n_jobs=6 --study_name=qqH_hybrid --gpu` failed. (See above for error)

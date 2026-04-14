@@ -1,6 +1,6 @@
 Setup:
-  input_path: '/vols/cms/dmw25/TauTheDifference/Production/.output/ShuffleMerge/qqH/tt'
-  model_outputs: 'XGB_Models/qqH/tt'
+  input_path: '/vols/cms/dmw25/TauTheDifference/Production/.output/ShuffleMerge/qqH_reweighted/tt'
+  model_outputs: 'XGB_Models/qqH_reweighted/tt'
   model_dir_name: 'model_tt'
 
 param: {

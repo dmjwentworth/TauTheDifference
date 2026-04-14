@@ -12,3 +12,4 @@ Training/python/batch_jobs/logs
 Training/python/batch_jobs/.bash_history
 Training/python/batch_jobs/oldscripts
 Production/.output/
+Training/condor/logs/

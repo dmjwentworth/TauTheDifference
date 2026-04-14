@@ -61,7 +61,14 @@ class stacked_histogram:
             "DY": {'color': self.colours['yellow'], 'label': r'$Z\to\tau\tau$'},
             "EW": {'color': self.colours['red'], 'label': r'Electroweak'},
             "OtherGenuine": {'color': self.colours['light_yellow'], 'label': r'Other genuine $\tau_h$'},
-            "OtherFake": {'color': self.colours['light_green'], 'label': r'Other jet $\to \tau_h$'}
+            "OtherFake": {'color': self.colours['light_green'], 'label': r'Other jet $\to \tau_h$'},
+            # Allowing for signal to be plotted as background for comparison
+            # ggH
+            "ggH": {'color': self.colours['red_line'], 'label': r'ggH$\to\tau\tau$'},
+            # VBF
+            "VBF": {'color': self.colours['blue_line'], 'label': r'qqH$\to\tau\tau$'},
+            # VH
+            "VH": {'color': self.colours['green_line'], 'label': r'VH$\to\tau\tau$'}
         }
         self.signal_process_info = {
             # ggH

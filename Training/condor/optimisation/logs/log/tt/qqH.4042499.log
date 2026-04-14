@@ -1,0 +1,111 @@
+000 (4042499.000.000) 2026-03-17 11:35:18 Job submitted from host: <146.179.108.134:9618?addrs=146.179.108.134-9618+[2a0c-5bc0-88-111-216-3eff-fe7f-207]-9618&alias=htcmaster00.hep.ph.ic.ac.uk&noUDP&sock=schedd_1004_3d2c>
+...
+040 (4042499.000.000) 2026-03-17 11:35:33 Started transferring input files
+	Transferring to host: <146.179.108.87:9618?addrs=146.179.108.87-9618+[2a0c-5bc0-88-111-216-3eff-fe7f-1b4]-9618&alias=lxbgpu01.hep.ph.ic.ac.uk&noUDP&sock=slot1_1_1194667_b9de_1254>
+...
+040 (4042499.000.000) 2026-03-17 11:35:33 Finished transferring input files
+...
+001 (4042499.000.000) 2026-03-17 11:35:34 Job executing on host: <146.179.108.87:9618?addrs=146.179.108.87-9618+[2a0c-5bc0-88-111-216-3eff-fe7f-1b4]-9618&alias=lxbgpu01.hep.ph.ic.ac.uk&noUDP&sock=startd_5373_0273>
+	SlotName: slot1_1@lxbgpu01.hep.ph.ic.ac.uk
+	AvailableGPUs = { GPUs_GPU_0ed04028 }
+	CondorScratchDir = "/srv/localstage/condor/dir_1333002"
+	Cpus = 16
+	Disk = 735125138
+	GPUs = 1
+	GPUs_GPU_0ed04028 = [ Id = "GPU-0ed04028"; ClockMhz = 1328.5; Capability = 6.0; CoresPerCU = 64; DeviceName = "Tesla P100-PCIE-12GB"; DeviceUuid = "0ed04028-b765-6c48-09e6-fc4e7aaf213a"; ECCEnabled = true; ComputeUnits = 56; NvidiaDriver = "580.126.20"; DriverVersion = 13.0; DevicePciBusId = "0000:00:03.0"; GlobalMemoryMb = 12187; MaxSupportedVersion = 13000 ]
+	Memory = 85790
+...
+006 (4042499.000.000) 2026-03-17 11:35:43 Image size of job updated: 8140
+	8  -  MemoryUsage of job (MB)
+	8140  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:37:44 Image size of job updated: 149368
+	146  -  MemoryUsage of job (MB)
+	149368  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:39:45 Image size of job updated: 3056040
+	2985  -  MemoryUsage of job (MB)
+	3056040  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:41:46 Image size of job updated: 3312572
+	3235  -  MemoryUsage of job (MB)
+	3312572  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:43:47 Image size of job updated: 3619904
+	3536  -  MemoryUsage of job (MB)
+	3619904  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:45:47 Image size of job updated: 4076460
+	3981  -  MemoryUsage of job (MB)
+	4076460  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:47:47 Image size of job updated: 4223296
+	4125  -  MemoryUsage of job (MB)
+	4223296  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:49:47 Image size of job updated: 4352960
+	4251  -  MemoryUsage of job (MB)
+	4352960  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:51:48 Image size of job updated: 4465080
+	4361  -  MemoryUsage of job (MB)
+	4465080  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:53:49 Image size of job updated: 4465644
+	4361  -  MemoryUsage of job (MB)
+	4465120  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:55:50 Image size of job updated: 4465644
+	4361  -  MemoryUsage of job (MB)
+	4465568  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:57:51 Image size of job updated: 4466728
+	4362  -  MemoryUsage of job (MB)
+	4466168  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 11:59:51 Image size of job updated: 4466728
+	4362  -  MemoryUsage of job (MB)
+	4466280  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 12:01:52 Image size of job updated: 4471400
+	4362  -  MemoryUsage of job (MB)
+	4466280  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 12:03:53 Image size of job updated: 4471628
+	4367  -  MemoryUsage of job (MB)
+	4471404  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 12:05:54 Image size of job updated: 4471628
+	4367  -  MemoryUsage of job (MB)
+	4471516  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 12:07:54 Image size of job updated: 4550344
+	4444  -  MemoryUsage of job (MB)
+	4550344  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 12:09:54 Image size of job updated: 4572488
+	4466  -  MemoryUsage of job (MB)
+	4572488  -  ResidentSetSize of job (KB)
+...
+006 (4042499.000.000) 2026-03-17 12:11:29 Image size of job updated: 4671380
+	4562  -  MemoryUsage of job (MB)
+	4670984  -  ResidentSetSize of job (KB)
+...
+004 (4042499.000.000) 2026-03-17 12:11:29 Job was evicted. Code 1009 Subcode 0
+	(0) CPU times
+		Usr 0 00:58:28, Sys 0 00:17:20  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+	0  -  Run Bytes Sent By Job
+	391  -  Run Bytes Received By Job
+	Reason: Claim deactivated
+	Partitionable Resources :    Usage      Request Allocated Assigned
+	   Cpus                 :     2.33        16           16 
+	   Disk (KB)            :    51    661612624.20 735125138 
+	   GPUs                 :     0.66         1            1 "GPU-0ed04028"
+	   Memory (MB)          :  4562        85790        85790 
+	   TimeExecute (s)      :  2155                           
+	   TimeSlotBusy (s)     :  2156                           
+...
+009 (4042499.000.000) 2026-03-17 12:11:29 Job was aborted.
+	via condor_rm (by user dmw25)
+...

@@ -1,0 +1,12 @@
+executable = optimisation.sh
+output = ./logs/out/tt/qqH.$(ClusterId).$(ProcId).out
+error = ./logs/err/tt/qqH.$(ClusterId).$(ProcId).err
+log = ./logs/log/tt/qqH.$(ClusterId).log
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+stream_output = True
+stream_error = True
+environment = "PYTHONUNBUFFERED=1"
++MaxRuntime = 50000
+request_gpus = 1
+queue

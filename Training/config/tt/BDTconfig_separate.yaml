@@ -1,5 +1,20 @@
 Setup:
   input_path: '/vols/cms/dmw25/TauTheDifference/Production/.output/ShuffleMerge/qqH/tt'
+  model_outputs: 'XGB_Models/qqH_separate/tt'
+  model_dir_name: 'model_tt'
+
+param: {
+        'objective': 'multi:softmax',
+        'n_jobs': 4,
+        'n_estimators': 507,
+        'lambda': 0.0005939607885864436,
+        'subsample': 0.8935925847880031,
+        'colsample_bytree': 0.22747187595248855,
+        'learning_rate': 0.030563084716245977,
+        'max_depth': 6,
+        'min_child_weight': 10
+      }
+
 Features:
   train: ['pt_1', 'pt_2',  # individual kinematics
           'met_pt','met_dphi_1', 'met_dphi_2', # met information

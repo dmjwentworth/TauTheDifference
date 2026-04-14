@@ -16,8 +16,6 @@ def get_args():
 args = get_args()
 logger = get_logger(debug=args.debug)
 
-
-
 def create_even_dataset(path, df, train_frac=0.7):
     # -> save the files to train the EVEN Model (WARNING: these have ODD event numbers)
     logger.debug('\n Creating datasets for EVEN model training and validation:')
@@ -38,6 +36,7 @@ def create_even_dataset(path, df, train_frac=0.7):
     print('-'*140)
 
     return True
+
 
 def create_odd_dataset(path, df, train_frac=0.7):
     # -> save the files to train the ODD Model (WARNING: these have EVEN event numbers)
@@ -103,21 +102,27 @@ def normalise(merged_df):
     # Initialise class_weight
     merged_df['class_weight'] = merged_df['weight']
     # Target sum of weights to be N events
-    w_sum_target = len(merged_df) / 4
-    logger.debug(f"\nTotal number of events is {len(merged_df)} so targetting sum of class weights to be {w_sum_target:.1f} for each category\n")
+    w_sum_target = len(merged_df) / 3
+    logger.debug(f"\nTotal number of events is {len(merged_df)} so targetting sum of class weights to be {w_sum_target:.1f} for each category (ggH and qqH considered as one class)\n")
     # Use only positive weights for class normalisation
     # Sum existing physics weights accross each category
     w_sum_taus = merged_df.loc[(merged_df['class_label'] == 0) & (merged_df['weight'] > 0), 'weight'].sum()
     w_sum_ggH = merged_df.loc[(merged_df['class_label'] == 11) & (merged_df['weight'] > 0), 'weight'].sum()
     w_sum_qqH = merged_df.loc[(merged_df['class_label'] == 12) & (merged_df['weight'] > 0), 'weight'].sum()
     w_sum_bkg = merged_df.loc[(merged_df['class_label'] == 2) & (merged_df['weight'] > 0), 'weight'].sum()
+    w_sum_higgs = w_sum_ggH + w_sum_qqH
     w_sum_cat = [w_sum_taus, w_sum_ggH, w_sum_qqH, w_sum_bkg]
     logger.debug(f"Sum of original weights for Genuine Taus [label 0]: {w_sum_taus:.2f}")
     logger.debug(f"Sum of original weights for ggH [label 11]: {w_sum_ggH:.2f}")
     logger.debug(f"Sum of original weights for qqH [label 12]: {w_sum_qqH:.2f}")
     logger.debug(f"Sum of original weights for Fakes [label 2]: {w_sum_bkg:.2f}")
     # Calculate normalisation weights
-    w_cat = [w_sum_target/w for w in w_sum_cat]
+    w_cat = [
+        w_sum_target / w_sum_taus, # for Genuine Taus [label 0]
+        w_sum_target / w_sum_higgs, # for ggH [label 11]
+        w_sum_target / w_sum_higgs, # for qqH [label 12]
+        w_sum_target / w_sum_bkg # for Fakes [label 2]
+    ]
     logger.debug(f"Sum of original weights for Genuine Taus [label 0]: {w_sum_cat[0]:.2f} -> assigned category weight {w_cat[0]}")
     logger.debug(f"Sum of original weights for ggH [label 11]: {w_sum_cat[1]:.2f} -> assigned category weight {w_cat[1]}")
     logger.debug(f"Sum of original weights for qqH [label 12]: {w_sum_cat[2]:.2f} -> assigned category weight {w_cat[2]}")
@@ -133,6 +138,7 @@ def normalise(merged_df):
 def main():
     cfg = yaml.safe_load(open(f"../config/config_{args.channel}.yaml"))
     shuffle_merge(cfg)
+
 
 if __name__ == "__main__":
     main()

@@ -14,18 +14,25 @@ le = LabelEncoder()
 
 
 def log_trial_result(study, trial):
-    """Print one concise line for each completed trial to monitor progress live."""
+    """Print diagnostic information to monitor progress live."""
     value = "None" if trial.value is None else f"{trial.value:.6f}"
     best_value = "None" if study.best_trial.value is None else f"{study.best_trial.value:.6f}"
+    ams_ggH_even = trial.user_attrs.get("ams_ggH_even", float("nan"))
+    ams_qqH_even = trial.user_attrs.get("ams_qqH_even", float("nan"))
+    ams_ggH_odd = trial.user_attrs.get("ams_ggH_odd", float("nan"))
+    ams_qqH_odd = trial.user_attrs.get("ams_qqH_odd", float("nan"))
     ams_even = trial.user_attrs.get("ams_even", float("nan"))
     ams_odd = trial.user_attrs.get("ams_odd", float("nan"))
     vetoed = trial.user_attrs.get("vetoed", False)
     print(
-        f"[Trial {trial.number:04d}] value={value} "
-        f"(ams_even={ams_even:.6f}, ams_odd={ams_odd:.6f}, vetoed={vetoed}) "
-        f"best={best_value}",
-        flush=True,
-    )
+    f"\n{'=' * 80}\n"
+    f"ams_ggH_even: {ams_ggH_even:.4f}, ams_qqH_even: {ams_qqH_even:.4f}, "
+    f"ams_ggH_odd: {ams_ggH_odd:.4f}, ams_qqH_odd: {ams_qqH_odd:.4f}\n"
+    f"[Trial {trial.number:04d}] value={value} "
+    f"(ams_even={ams_even:.6f}, ams_odd={ams_odd:.6f}, vetoed={vetoed}) "
+    f"best={best_value}",
+    flush=True,
+)
 
 def get_args():
     parser = argparse.ArgumentParser(description="Hyperparameter optimization for XGBoost")
@@ -42,27 +49,36 @@ def validation(model, x, y, w_NN, w_phys, parity):
     y_pred = y_pred_proba.argmax(axis=1) # predicted label
     y_pred = le.inverse_transform(y_pred) # convert back to original labels (0=genuine, 11=ggH, 12=qqH, 2=fakes)
     # Find events classified as Higgs and get their raw scores, weights and truth labels
-    higgs_mask = (y_pred == 11) | (y_pred == 12)
-    y_pred_higgs = y_pred_proba[:, 2][higgs_mask] + y_pred_proba[:, 3][higgs_mask] # combining ggH and qqH scores
-    w_pred_higgs = w_phys[higgs_mask]
-    y_higgs = y[higgs_mask]
+    pred_ggH_mask = (y_pred == 11)
+    pred_qqH_mask = (y_pred == 12)
+    y_pred_ggH = y_pred_proba[:, 2][pred_ggH_mask]
+    y_pred_qqH = y_pred_proba[:, 3][pred_qqH_mask]
+    w_pred_ggH = w_phys[pred_ggH_mask]
+    w_pred_qqH = w_phys[pred_qqH_mask]
+    y_ggH = y[pred_ggH_mask]
+    y_qqH = y[pred_qqH_mask]
     # Optimised binning (flat signal)
-    true_higgs_mask = (y_higgs == 11) | (y_higgs == 12)
+    true_ggH_mask = (y_ggH == 11)
+    true_qqH_mask = (y_qqH == 12)
     n_bins = 5
-    if np.count_nonzero(true_higgs_mask) < n_bins:
-        return -9999 # not enough signal events to make a meaningful score
-    else:
-        w_perc = DescrStatsW(y_pred_higgs[true_higgs_mask], weights=w_pred_higgs[true_higgs_mask]).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
-        bins = np.concatenate([[0.25], np.array(w_perc), [1]])
-        # Histogram signal and background counts in each bin
-        s_counts = np.histogram(y_pred_higgs[true_higgs_mask], bins=bins, weights=w_pred_higgs[true_higgs_mask])[0]
-        bkg_counts = np.histogram(y_pred_higgs[~true_higgs_mask], bins=bins, weights=w_pred_higgs[~true_higgs_mask])[0]
-        # AMS Score
-        ams_bybin = AMS(s_counts, bkg_counts)
-        ams = np.sqrt(np.sum(ams_bybin**2))
-        # print("AMS Score (bin by bin):", ams)
-        print(f"AMS {parity}: {ams}")
-        return ams
+    w_perc_ggH = DescrStatsW(y_pred_ggH[true_ggH_mask], weights=w_pred_ggH[true_ggH_mask]).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
+    w_perc_qqH = DescrStatsW(y_pred_qqH[true_qqH_mask], weights=w_pred_qqH[true_qqH_mask]).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
+    bins_ggH = np.concatenate([[0.25], np.array(w_perc_ggH), [1]])
+    bins_qqH = np.concatenate([[0.25], np.array(w_perc_qqH), [1]])
+    # Histogram signal and background counts in each bin
+    s_counts_ggH = np.histogram(y_pred_ggH[true_ggH_mask], bins=bins_ggH, weights=w_pred_ggH[true_ggH_mask])[0]
+    s_counts_qqH = np.histogram(y_pred_qqH[true_qqH_mask], bins=bins_qqH, weights=w_pred_qqH[true_qqH_mask])[0]
+    bkg_counts_ggH = np.histogram(y_pred_ggH[~true_ggH_mask], bins=bins_ggH, weights=w_pred_ggH[~true_ggH_mask])[0]
+    bkg_counts_qqH = np.histogram(y_pred_qqH[~true_qqH_mask], bins=bins_qqH, weights=w_pred_qqH[~true_qqH_mask])[0]
+    # AMS Score
+    ams_bybin_ggH = AMS(s_counts_ggH, bkg_counts_ggH)
+    ams_bybin_qqH = AMS(s_counts_qqH, bkg_counts_qqH)
+    ams_ggH = np.sqrt(np.sum(ams_bybin_ggH**2))
+    ams_qqH = np.sqrt(np.sum(ams_bybin_qqH**2))
+    ams = np.sqrt(ams_ggH**2 + ams_qqH**2)
+    # print("AMS Score (bin by bin):", ams)
+    print(f"AMS {parity}: {ams}")
+    return ams, ams_ggH, ams_qqH
 
 
 def train_model(x_train, y_train, w_train, parity, param):
@@ -99,27 +115,36 @@ def objective(trial):
 
         # Train even model
         model_even = train_model(x_train_gpu_EVEN, y_train_gpu_EVEN, w_train_gpu_EVEN, "EVEN", param)
-        ams_even = validation(model_even, x_val_gpu_EVEN, y_val_EVEN, w_NN_val_EVEN, w_phys_val_EVEN, "EVEN")
+        ams_even, ams_ggH_even, ams_qqH_even = validation(model_even, x_val_gpu_EVEN, y_val_EVEN, w_NN_val_EVEN, w_phys_val_EVEN, "EVEN")
 
         # Train odd model
         model_odd = train_model(x_train_gpu_ODD, y_train_gpu_ODD, w_train_gpu_ODD, "ODD", param)
-        ams_odd = validation(model_odd, x_val_gpu_ODD, y_val_ODD, w_NN_val_ODD, w_phys_val_ODD, "ODD")
+        ams_odd, ams_ggH_odd, ams_qqH_odd = validation(model_odd, x_val_gpu_ODD, y_val_ODD, w_NN_val_ODD, w_phys_val_ODD, "ODD")
 
     else:
         # Train even model
         model_even = train_model(x_train_EVEN, y_train_EVEN, w_train_EVEN, "EVEN", param)
-        ams_even = validation(model_even, x_val_EVEN, y_val_EVEN, w_NN_val_EVEN, w_phys_val_EVEN, "EVEN")
+        ams_even, ams_ggH_even, ams_qqH_even = validation(model_even, x_val_EVEN, y_val_EVEN, w_NN_val_EVEN, w_phys_val_EVEN, "EVEN")
 
         # Train odd model
         model_odd = train_model(x_train_ODD, y_train_ODD, w_train_ODD, "ODD", param)
-        ams_odd = validation(model_odd, x_val_ODD, y_val_ODD, w_NN_val_ODD, w_phys_val_ODD, "ODD")
+        ams_odd, ams_ggH_odd, ams_qqH_odd = validation(model_odd, x_val_ODD, y_val_ODD, w_NN_val_ODD, w_phys_val_ODD, "ODD")
 
     trial.set_user_attr("ams_even", float(ams_even))
     trial.set_user_attr("ams_odd", float(ams_odd))
+    trial.set_user_attr("ams_ggH_even", float(ams_ggH_even))
+    trial.set_user_attr("ams_qqH_even", float(ams_qqH_even))
+    trial.set_user_attr("ams_ggH_odd", float(ams_ggH_odd))
+    trial.set_user_attr("ams_qqH_odd", float(ams_qqH_odd))
 
 
-
-    if abs(ams_even - ams_odd)/(ams_even + ams_odd) > 0.05: # allow a 5% difference in total AMS ~ 10% in between the two
+    if abs(ams_even - ams_odd)/(ams_even + ams_odd) > 0.04: # allow a 4% difference in total AMS
+        trial.set_user_attr("vetoed", True)
+        return 0 # effectvely veto this model
+    elif abs(ams_ggH_even - ams_ggH_odd)/(ams_ggH_even + ams_ggH_odd) > 0.08: # allow an 8% difference in ggH AMS
+        trial.set_user_attr("vetoed", True)
+        return 0 # effectvely veto this model
+    elif abs(ams_qqH_even - ams_qqH_odd)/(ams_qqH_even + ams_qqH_odd) > 0.08: # allow an 8% difference in qqH AMS
         trial.set_user_attr("vetoed", True)
         return 0 # effectvely veto this model
     else:

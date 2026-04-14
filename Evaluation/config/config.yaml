@@ -1,7 +1,7 @@
 # TauTau Channel Models
 tt:
   model_name: 'model_tt'
-  model_path: "../../Training/python/XGB_Models/qqH/tt/"
+  model_path: "../../Training/python/XGB_Models/qqH_reweighted/tt"
   model_type: "BDT"
   # model_cut: "VTight"
 # MuTau Channel Models

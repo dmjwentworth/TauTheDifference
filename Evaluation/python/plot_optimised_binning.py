@@ -11,6 +11,10 @@ import argparse
 def get_args():
     parser = argparse.ArgumentParser(description="XGBoost Classifier Evaluation")
     parser.add_argument('--channel', type=str, help="Channel to train", required=True)
+    parser.add_argument('--combined', action='store_true', help="Legacy style AMS plot Higgs score = ggH + VBF score")
+    parser.add_argument('--separate', action='store_true', help="Whether to plot the separate ggH and VBF scores or the combined score")
+    parser.add_argument('--ggH_Higgs_bins', action='store_true', help='Produce plot for optimised ggH binning')
+    parser.add_argument('--qqH_Higgs_bins', action='store_true', help='Produce plot for optimised VBF binning')
     return parser.parse_args()
 
 
@@ -164,8 +168,8 @@ def plot_score(cfg, parity, channel):
     print(sig_counts, bkg_counts)
     sig_AMS = AMS(sig_counts, bkg_counts)
     print("--------------------------------------------------------")
-    print(f"AMS for the individual bins is: {sig_AMS}")
-    print(f"Overall AMS for {model_dir.split('/')[-1]}: {np.sqrt(np.sum(sig_AMS**2))}")
+    print(f"AMS_higgs for the individual bins is: {sig_AMS}")
+    print(f"Overall AMS_higgs for {model_dir.split('/')[-1]}: {np.sqrt(np.sum(sig_AMS**2))}")
 
     # Labels and AMS display
     ax.set_xlim(0.25, 1)
@@ -194,6 +198,315 @@ $\tau_h\tau_h$ channel"""
     plt.savefig(os.path.join(model_dir, 'plots', f"Optimised_Higgs_score.pdf"))
 
 
+def plot_separate(cfg, parity, channel, category):
+    # Load the model predictions
+    model_dir = os.path.join(cfg['model_path'], cfg['model_name'], parity)
+    pred_df = pd.read_parquet(os.path.join(model_dir, 'EVAL_predictions.parquet'))
+    process_id_counts = pred_df['process_id'].value_counts()
+
+    # Select events classified as category of interest (ggH or qqH)
+    if category == 'ggH':
+        pred_df = pred_df.loc[pred_df['pred_label'] == 11]
+    elif category == 'qqH':
+        pred_df = pred_df.loc[pred_df['pred_label'] == 12]
+
+    # Split into individual classes (by process ID)
+    # genuine taus
+    DY_tau = pred_df.loc[pred_df['process_id'] == 11]
+    other_tau = pred_df.loc[(pred_df['process_id'] == 21) | (pred_df['process_id'] == 31) | (pred_df['process_id'] == 51) | (pred_df['process_id'] == 14)] # TT, ST, VV, EWKZ
+    # lepton fakes
+    DY_lep = pred_df.loc[(pred_df['process_id'] == 12) | (pred_df['process_id'] == 16)] # DY or EWK~
+    # jet fakes
+    EW = pred_df.loc[(pred_df['process_id'] == 43) | (pred_df['process_id'] == 53) | (pred_df['process_id'] == 16)]
+    QCD = pred_df.loc[pred_df['process_id'] == 0]
+    Top_jet = pred_df.loc[(pred_df['process_id'] == 23) | (pred_df['process_id'] == 33)]
+    other_jet = pred_df.loc[pred_df['process_id'] == 13]
+    # signal
+    ggH = pred_df[pred_df['process_id'] == 100]
+    VBF = pred_df[pred_df['process_id'] == 101]
+    VH = pred_df[pred_df['process_id'] == 102]
+    if category == 'ggH':
+        total_sig = ggH
+    elif category == 'qqH':
+        total_sig = pd.concat([VBF, VH])
+
+    # Split into n bins with equal number of weighted signal
+    n_bins = 4
+    w_perc = DescrStatsW(total_sig[f'pred_{category}'], weights=total_sig['weight']).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
+    bins = np.concatenate([[0.25], np.array(w_perc), [1]])
+
+    # Plot the optimised distribution
+    print(f"Plotting optimised distribution for {category}")
+    fig, ax = plt.subplots(figsize = (6,6))
+    # Stacked histogram
+    histo = stacked_histogram(f"pred_{category}", ax, bins)
+
+    # Add fake processes
+    histo.add_bkg(Top_jet, "Top_jet")
+    histo.add_bkg(QCD, "QCD")
+    histo.add_bkg(EW, "EW")
+    histo.add_bkg(other_jet, "OtherFake")
+    histo.add_bkg(DY_lep, "DY_lep")
+    # genuine backgrounds
+    histo.add_bkg(DY_tau, "DY")
+    histo.add_bkg(other_tau, "OtherGenuine")
+    # Add signal processes
+    if category == 'ggH':
+        histo.add_signal(ggH, "ggH")
+        histo.add_bkg(VBF, "VBF") # add VBF as a background when plotting ggH score
+        histo.add_bkg(VH, "VH") # add VH as a background when plotting ggH score
+    elif category == 'qqH':
+        histo.add_signal(VBF, "VBF")
+        histo.add_signal(VH, "VH")
+        histo.add_bkg(ggH, "ggH") # add ggH as a background when plotting VBF score
+    # Total background outline
+    histo.add_total_bkg()
+    histo.add_signal(total_sig, "total_sig")
+
+    # Get the axes
+    ax = histo.get_ax(xlabel=rf"{category} {cfg['model_type']} Score", lumi=lumi, ncol=2, fontsmall=True)
+
+    # plot bin boundaries
+    for i in range(1, n_bins):
+        ax.axvline(x=bins[i], color='black', linestyle='--', linewidth = 1.3)
+
+    print(f"Weighted counts from different signals:")
+    print(ggH['weight'].sum(), VBF['weight'].sum(), VH['weight'].sum())
+    # Get counts for AMS
+    sig_counts, bkg_counts = histo.get_counts()
+    print(sig_counts, bkg_counts)
+    sig_AMS = AMS(sig_counts, bkg_counts)
+    print("--------------------------------------------------------")
+    print(f"AMS_{category} for the individual bins is: {sig_AMS}")
+    print(f"Overall AMS_{category} for {model_dir.split('/')[-1]}: {np.sqrt(np.sum(sig_AMS**2))}")
+
+    # Labels and AMS display
+    ax.set_xlim(0.25, 1)
+    if channel=='mt':
+        box_info = rf"""AMS: {np.sqrt(np.sum(sig_AMS**2)):.2f}
+{parity} Events
+$\mu\tau_h$ channel"""
+    elif channel=='et':
+        box_info = rf"""AMS: {np.sqrt(np.sum(sig_AMS**2)):.2f}
+{parity} Events
+$e\tau_h$ channel"""
+    elif channel=='tt':
+        box_info = rf"""AMS: {np.sqrt(np.sum(sig_AMS**2)):.2f}
+{parity} Events
+$\tau_h\tau_h$ channel"""
+
+    if channel=='tt':
+        ax.text(0.75, 0.83, box_info, fontsize=12, transform=ax.transAxes, fontfamily='sans-serif',
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
+    else:
+        ax.text(0.75, 0.87, box_info, fontsize=12, transform=ax.transAxes, fontfamily='sans-serif',
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
+
+    ax.set_yscale('log')
+    ax.set_ylim(1, 1000*histo.get_max())
+    plt.savefig(os.path.join(model_dir, 'plots', f"Optimised_{category}_score.pdf"))
+
+
+def plot_ggH_higgs_score(cfg, parity, channel):
+    # Load the model predictions
+    model_dir = os.path.join(cfg['model_path'], cfg['model_name'], parity)
+    pred_df = pd.read_parquet(os.path.join(model_dir, 'EVAL_predictions.parquet'))
+    process_id_counts = pred_df['process_id'].value_counts()
+
+    # Select events classified as ggH
+    pred_df = pred_df.loc[(pred_df['pred_label'] == 11)]
+    pred_df['pred_1'] = pred_df['pred_ggH'] + pred_df['pred_qqH'] # combine ggH and qqH scores for binning
+
+    # Split into individual classes (by process ID)
+    # genuine taus
+    DY_tau = pred_df.loc[pred_df['process_id'] == 11]
+    other_tau = pred_df.loc[(pred_df['process_id'] == 21) | (pred_df['process_id'] == 31) | (pred_df['process_id'] == 51) | (pred_df['process_id'] == 14)] # TT, ST, VV, EWKZ
+    # lepton fakes
+    DY_lep = pred_df.loc[(pred_df['process_id'] == 12) | (pred_df['process_id'] == 16)] # DY or EWK~
+    # jet fakes
+    EW = pred_df.loc[(pred_df['process_id'] == 43) | (pred_df['process_id'] == 53) | (pred_df['process_id'] == 16)]
+    QCD = pred_df.loc[pred_df['process_id'] == 0]
+    Top_jet = pred_df.loc[(pred_df['process_id'] == 23) | (pred_df['process_id'] == 33)]
+    other_jet = pred_df.loc[pred_df['process_id'] == 13]
+    # signal
+    ggH = pred_df[pred_df['process_id'] == 100]
+    VBF = pred_df[pred_df['process_id'] == 101]
+    VH = pred_df[pred_df['process_id'] == 102]
+    total_sig = ggH
+
+    # Split into n bins with equal number of weighted signal
+    n_bins = 4
+    w_perc = DescrStatsW(total_sig['pred_1'], weights=total_sig['weight']).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
+    bins = np.concatenate([[0.25], np.array(w_perc), [1]])
+
+    # Plot the optimised distribution
+    print(f"Plotting optimised distribution for ggH w.r.t Higgs score")
+    fig, ax = plt.subplots(figsize = (6,6))
+    # Stacked histogram
+    histo = stacked_histogram("pred_1", ax, bins)
+
+    # Add fake processes
+    histo.add_bkg(Top_jet, "Top_jet")
+    histo.add_bkg(QCD, "QCD")
+    histo.add_bkg(EW, "EW")
+    histo.add_bkg(other_jet, "OtherFake")
+    histo.add_bkg(DY_lep, "DY_lep")
+    # genuine backgrounds
+    histo.add_bkg(DY_tau, "DY")
+    histo.add_bkg(other_tau, "OtherGenuine")
+    # other Higgs processes as background
+    histo.add_bkg(VBF, "VBF")
+    histo.add_bkg(VH, "VH")
+    # Total background outline
+    histo.add_total_bkg()
+    # Add signal processes
+    histo.add_signal(ggH, "ggH")
+    histo.add_signal(total_sig, "total_sig")
+
+    # Get the axes
+    ax = histo.get_ax(xlabel=rf"Higgs {cfg['model_type']} Score", lumi=lumi, ncol=2, fontsmall=True)
+
+    # plot bin boundaries
+    for i in range(1, n_bins):
+        ax.axvline(x=bins[i], color='black', linestyle='--', linewidth = 1.3)
+
+    print(f"Weighted counts from different signals:")
+    print(ggH['weight'].sum(), VBF['weight'].sum(), VH['weight'].sum())
+    # Get counts for AMS
+    sig_counts, bkg_counts = histo.get_counts()
+    print(sig_counts, bkg_counts)
+    sig_AMS = AMS(sig_counts, bkg_counts)
+    print("--------------------------------------------------------")
+    print(f"AMS_higgs for the individual bins is: {sig_AMS}")
+    print(f"Overall AMS_higgs for {model_dir.split('/')[-1]}: {np.sqrt(np.sum(sig_AMS**2))}")
+
+    # Labels and AMS display
+    ax.set_xlim(0.25, 1)
+    if channel=='mt':
+        box_info = rf"""AMS: {np.sqrt(np.sum(sig_AMS**2)):.2f}
+{parity} Events
+$\mu\tau_h$ channel"""
+    elif channel=='et':
+        box_info = rf"""AMS: {np.sqrt(np.sum(sig_AMS**2)):.2f}
+{parity} Events
+$e\tau_h$ channel"""
+    elif channel=='tt':
+        box_info = rf"""AMS: {np.sqrt(np.sum(sig_AMS**2)):.2f}
+{parity} Events
+$\tau_h\tau_h$ channel"""
+
+    if channel=='tt':
+        ax.text(0.75, 0.83, box_info, fontsize=12, transform=ax.transAxes, fontfamily='sans-serif',
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
+    else:
+        ax.text(0.75, 0.87, box_info, fontsize=12, transform=ax.transAxes, fontfamily='sans-serif',
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
+
+    ax.set_yscale('log')
+    ax.set_ylim(1, 1000*histo.get_max())
+    plt.savefig(os.path.join(model_dir, 'plots', f"find_ggH_Higgs_bins.pdf"))
+
+
+def plot_qqH_higgs_score(cfg, parity, channel):
+    # Load the model predictions
+    model_dir = os.path.join(cfg['model_path'], cfg['model_name'], parity)
+    pred_df = pd.read_parquet(os.path.join(model_dir, 'EVAL_predictions.parquet'))
+    process_id_counts = pred_df['process_id'].value_counts()
+
+    # Select events classified as qqH
+    pred_df = pred_df.loc[(pred_df['pred_label'] == 12)]
+    pred_df['pred_1'] = pred_df['pred_ggH'] + pred_df['pred_qqH'] # combine ggH and qqH scores for binning
+
+    # Split into individual classes (by process ID)
+    # genuine taus
+    DY_tau = pred_df.loc[pred_df['process_id'] == 11]
+    other_tau = pred_df.loc[(pred_df['process_id'] == 21) | (pred_df['process_id'] == 31) | (pred_df['process_id'] == 51) | (pred_df['process_id'] == 14)] # TT, ST, VV, EWKZ
+    # lepton fakes
+    DY_lep = pred_df.loc[(pred_df['process_id'] == 12) | (pred_df['process_id'] == 16)] # DY or EWK~
+    # jet fakes
+    EW = pred_df.loc[(pred_df['process_id'] == 43) | (pred_df['process_id'] == 53) | (pred_df['process_id'] == 16)]
+    QCD = pred_df.loc[pred_df['process_id'] == 0]
+    Top_jet = pred_df.loc[(pred_df['process_id'] == 23) | (pred_df['process_id'] == 33)]
+    other_jet = pred_df.loc[pred_df['process_id'] == 13]
+    # signal
+    ggH = pred_df[pred_df['process_id'] == 100]
+    VBF = pred_df[pred_df['process_id'] == 101]
+    VH = pred_df[pred_df['process_id'] == 102]
+    total_sig = pd.concat([VBF, VH])
+
+    # Split into n bins with equal number of weighted signal
+    n_bins = 3
+    w_perc = DescrStatsW(total_sig['pred_1'], weights=total_sig['weight']).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
+    bins = np.concatenate([[0.25], np.array(w_perc), [1]])
+
+    # Plot the optimised distribution
+    print(f"Plotting optimised distribution for qqH w.r.t Higgs score")
+    fig, ax = plt.subplots(figsize = (6,6))
+    # Stacked histogram
+    histo = stacked_histogram("pred_1", ax, bins)
+
+    # Add fake processes
+    histo.add_bkg(Top_jet, "Top_jet")
+    histo.add_bkg(QCD, "QCD")
+    histo.add_bkg(EW, "EW")
+    histo.add_bkg(other_jet, "OtherFake")
+    histo.add_bkg(DY_lep, "DY_lep")
+    # genuine backgrounds
+    histo.add_bkg(DY_tau, "DY")
+    histo.add_bkg(other_tau, "OtherGenuine")
+    # other Higgs processes as background
+    histo.add_bkg(ggH, "ggH")
+    # Total background outline
+    histo.add_total_bkg()
+    # Add signal processes
+    histo.add_signal(VBF, "VBF")
+    histo.add_signal(VH, "VH")
+    histo.add_signal(total_sig, "total_sig")
+
+    # Get the axes
+    ax = histo.get_ax(xlabel=rf"Higgs {cfg['model_type']} Score", lumi=lumi, ncol=2, fontsmall=True)
+
+    # plot bin boundaries
+    for i in range(1, n_bins):
+        ax.axvline(x=bins[i], color='black', linestyle='--', linewidth = 1.3)
+
+    print(f"Weighted counts from different signals:")
+    print(ggH['weight'].sum(), VBF['weight'].sum(), VH['weight'].sum())
+    # Get counts for AMS
+    sig_counts, bkg_counts = histo.get_counts()
+    print(sig_counts, bkg_counts)
+    sig_AMS = AMS(sig_counts, bkg_counts)
+    print("--------------------------------------------------------")
+    print(f"AMS_higgs for the individual bins is: {sig_AMS}")
+    print(f"Overall AMS_higgs for {model_dir.split('/')[-1]}: {np.sqrt(np.sum(sig_AMS**2))}")
+
+    # Labels and AMS display
+    ax.set_xlim(0.25, 1)
+    if channel=='mt':
+        box_info = rf"""AMS: {np.sqrt(np.sum(sig_AMS**2)):.2f}
+{parity} Events
+$\mu\tau_h$ channel"""
+    elif channel=='et':
+        box_info = rf"""AMS: {np.sqrt(np.sum(sig_AMS**2)):.2f}
+{parity} Events
+$e\tau_h$ channel"""
+    elif channel=='tt':
+        box_info = rf"""AMS: {np.sqrt(np.sum(sig_AMS**2)):.2f}
+{parity} Events
+$\tau_h\tau_h$ channel"""
+
+    if channel=='tt':
+        ax.text(0.75, 0.83, box_info, fontsize=12, transform=ax.transAxes, fontfamily='sans-serif',
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
+    else:
+        ax.text(0.75, 0.87, box_info, fontsize=12, transform=ax.transAxes, fontfamily='sans-serif',
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
+
+    ax.set_yscale('log')
+    ax.set_ylim(1, 1000*histo.get_max())
+    plt.savefig(os.path.join(model_dir, 'plots', f"find_qqH_Higgs_bins.pdf"))
+
+
 if __name__ == "__main__":
     args = get_args()
     cfg = yaml.safe_load(open("../config/config.yaml"))
@@ -201,8 +514,33 @@ if __name__ == "__main__":
     if args.channel == 'tt':
         print("Plotting for tt channel")
         cfg = cfg['tt']
-        plot_score(cfg, "EVEN", 'tt')
-        plot_score(cfg, "ODD", 'tt')
+        
+        if args.combined:
+            print("=" * 50)
+            print("Plotting combined ggH and VBF score")
+            plot_score(cfg, "EVEN", 'tt')
+            plot_score(cfg, "ODD", 'tt')
+        
+        if args.separate:
+            print("=" * 50)
+            print("Plotting separate ggH and VBF scores")
+            plot_separate(cfg, "EVEN", 'tt', 'ggH')
+            plot_separate(cfg, "ODD", 'tt', 'ggH')
+            plot_separate(cfg, "EVEN", 'tt', 'qqH')
+            plot_separate(cfg, "ODD", 'tt', 'qqH')
+        
+        if args.ggH_Higgs_bins:
+            print("=" * 50)
+            print("Plotting optimised ggH bins")
+            plot_ggH_higgs_score(cfg, "EVEN", 'tt')
+            plot_ggH_higgs_score(cfg, "ODD", 'tt')
+
+        if args.qqH_Higgs_bins:
+            print("=" * 50)
+            print("Plotting optimised VBF bins")
+            plot_qqH_higgs_score(cfg, "EVEN", 'tt')
+            plot_qqH_higgs_score(cfg, "ODD", 'tt')
+    
     elif args.channel == 'mt':
         print("Plotting for MuTau channel")
         cfg = cfg['mt']
