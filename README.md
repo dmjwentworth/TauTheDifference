@@ -8,7 +8,7 @@ Channels currently supported:
 Models currently supported:
 - XGBClassifier 
 
-Workflow for training the BDT:
+Workflow for training the BDT (updating config .yaml files where necessary):
  - ``cd Production/python``
  - ``python PreSelect.py <some argparse stuff>``
  - ``python Process.py <some argparse stuff>``
