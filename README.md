@@ -9,14 +9,14 @@ Models currently supported:
 - XGBClassifier 
 
 Workflow for training the BDT:
-    - ``cd Production/python``
-    - ``python PreSelect.py <some argparse stuff>``
-    - ``python Process.py <some argparse stuff>``
-    - ``python ShuffleMerge.py <some argparse stuff>``
-    - ``cd ../../Training/python``
-    - ``python trainBDT.py <some argparse stuff>``
-    - ``cd ../../Evaluation/python``
-    - ``python apply_BDTtraining.py <some argparse stuff>``
-    - ``python plot_optimised_binning.py <some argparse stuff>``
+ - ``cd Production/python``
+ - ``python PreSelect.py <some argparse stuff>``
+ - ``python Process.py <some argparse stuff>``
+ - ``python ShuffleMerge.py <some argparse stuff>``
+ - ``cd ../../Training/python``
+ - ``python trainBDT.py <some argparse stuff>``
+ - ``cd ../../Evaluation/python``
+ - ``python apply_BDTtraining.py <some argparse stuff>``
+ - ``python plot_optimised_binning.py <some argparse stuff>``
 
-Visit the repo upstream of this one <URL> for a more informative README.
+Visit the repo upstream of this one (https://github.com/lucasrussell01/TauTheDifference) for a more informative README.
