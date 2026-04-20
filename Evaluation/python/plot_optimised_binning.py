@@ -30,73 +30,6 @@ def AMS(S, B, b0=0):
     return ams
 
 
-# old style plot for tt
-# def plot_tt(cfg, parity):
-#     # Load the model predictions
-#     model_dir = os.path.join(cfg['model_path'], cfg['model_name'], parity)
-#     pred_df = pd.read_parquet(os.path.join(model_dir, 'EVAL_predictions.parquet'))
-#     process_id_counts = pred_df['process_id'].value_counts()
-
-#     # Select events classified as Higgs
-#     pred_df = pred_df[pred_df['pred_label'] == 1]
-
-#     # Split into individual classes (by process ID)
-#     taus = pred_df.loc[pred_df['process_id'] == 11]
-#     fake = pred_df[pred_df['process_id'] == 0]
-#     ggH = pred_df[pred_df['process_id'] == 100]
-#     VBF = pred_df[pred_df['process_id'] == 101]
-#     # All Higgs for binning
-#     higgs = pred_df[(pred_df['process_id'] == 100) | (pred_df['process_id'] == 101)]
-
-#     # Split into n bins with equal number of weighted signal
-#     n_bins = 5
-#     w_perc = DescrStatsW(higgs['pred_1'], weights=higgs['weight']).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
-#     bins = np.concatenate([[0.33], np.array(w_perc), [1]])
-
-#     # Plot the optimised distribution
-#     print(f"Plotting optimised distribution for Higgs")
-
-#     fig, ax = plt.subplots(figsize = (6,6))
-
-#     # Stacked histogram
-#     histo = stacked_histogram("pred_1", ax, bins)
-#     # Tau and Background Classes
-#     histo.add_bkg(taus, "DY")
-#     histo.add_bkg(fake, "Jet_Fakes")
-#     histo.add_total_bkg()
-#     # Signal Processes
-#     histo.add_signal(ggH, "ggH")
-#     histo.add_signal(VBF, "VBF")
-
-#     # Get the axes
-#     ax = histo.get_ax(xlabel=rf"Higgs {cfg['model_type']} Score", lumi=lumi)
-
-#     # plot bin boundaries
-#     for i in range(1, n_bins):
-#         ax.axvline(x=bins[i], color='black', linestyle='--', linewidth = 1.3)
-
-#     # Get counts for AMS
-#     sig_counts, bkg_counts = histo.get_counts()
-#     # print(sig_counts, bkg_counts)
-#     sig_AMS = AMS(sig_counts, bkg_counts)
-#     print("--------------------------------------------------------")
-#     print(f"AMS for the individual bins is: {sig_AMS}")
-#     print(f"Overall AMS for {model_dir.split('/')[-1]}: {np.sqrt(np.sum(sig_AMS**2))}")
-
-#     # Labels and AMS display
-#     ax.set_xlim(0.33, 1)
-#     box_info = rf"""AMS: {np.sqrt(np.sum(sig_AMS**2)):.2f}
-# {parity} Events
-# {cfg["model_cut"]} VSjet Cut
-# $\tau_h\tau_h$ channel"""
-
-#     ax.text(0.685, 0.87, box_info, fontsize=12, transform=ax.transAxes, fontfamily='sans-serif',
-#             bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
-#     ax.set_yscale('log')
-#     ax.set_ylim(1, 1e5)
-#     plt.savefig(os.path.join(model_dir, 'plots', f"Optimised_Higgs_score.pdf"))
-
-
 def plot_score(cfg, parity, channel):
     # Load the model predictions
     model_dir = os.path.join(cfg['model_path'], cfg['model_name'], parity)
@@ -231,7 +164,7 @@ def plot_separate(cfg, parity, channel, category):
         total_sig = pd.concat([VBF, VH])
 
     # Split into n bins with equal number of weighted signal
-    n_bins = 4
+    n_bins = 5
     w_perc = DescrStatsW(total_sig[f'pred_{category}'], weights=total_sig['weight']).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
     bins = np.concatenate([[0.25], np.array(w_perc), [1]])
 

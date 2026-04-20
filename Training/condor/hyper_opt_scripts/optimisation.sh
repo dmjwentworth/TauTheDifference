@@ -7,5 +7,5 @@ mkdir -p hyperlogs
 echo "Ready to run hyperparameter optimization"
 nvidia-smi
 /vols/cms/dmw25/miniforge3/bin/conda run -n TauTheDifference --no-capture-output \
-	python searchBDTparams_hybrid.py --channel=tt --n_trials=750 --n_jobs=6 --study_name=qqH_hybrid --gpu
+	python searchBDTparams_hybrid.py --channel=tt --n_trials=750 --n_jobs=6 --study_name=qqH --gpu
 echo "Finished"

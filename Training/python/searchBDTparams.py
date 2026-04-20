@@ -4,14 +4,11 @@ from train_BDT import load_ds, AMS
 import os
 import yaml
 from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from statsmodels.stats.weightstats import DescrStatsW
 import numpy as np
 import argparse
-
 le = LabelEncoder()
-
 
 def log_trial_result(study, trial):
     """Print one concise line for each completed trial to monitor progress live."""
@@ -27,6 +24,7 @@ def log_trial_result(study, trial):
         flush=True,
     )
 
+
 def get_args():
     parser = argparse.ArgumentParser(description="Hyperparameter optimization for XGBoost")
     parser.add_argument('--channel', type=str, help="Channel to optimise", required=True)
@@ -35,6 +33,7 @@ def get_args():
     parser.add_argument('--study_name', type=str, help="Name of study (can use to resume)")
     parser.add_argument('--gpu', action='store_true', help="Use GPU for training")
     return parser.parse_args()
+
 
 def validation(model, x, y, w_NN, w_phys, parity):
     # Get predictions
@@ -76,8 +75,18 @@ def train_model(x_train, y_train, w_train, parity, param):
 
 
 def objective(trial):
+    """
+    Objective function for Optuna to optimize. Trains two XGBoost models (even
+    and odd) with the same hyperparameters and evaluates their AMS scores on the
+    validation set. The final score is a combination of the two AMS scores,
+    penalized if they differ significantly to encourage balanced performance
+    between the two models.
 
-    # Optimise the sum of the two AMS scores
+    In validation()'s current form, this AMS score purely quantifies Higgs
+    (ggH+qqH) vs background separation, without distinguishing between ggH and
+    qqH. It may be worth investigating the effect of using a more complex score
+    that also takes into account the separation between ggH and qqH.
+    """
 
     param = {
         "verbosity": 0,
@@ -117,8 +126,6 @@ def objective(trial):
     trial.set_user_attr("ams_even", float(ams_even))
     trial.set_user_attr("ams_odd", float(ams_odd))
 
-
-
     if abs(ams_even - ams_odd)/(ams_even + ams_odd) > 0.05: # allow a 5% difference in total AMS ~ 10% in between the two
         trial.set_user_attr("vetoed", True)
         return 0 # effectvely veto this model
@@ -128,7 +135,6 @@ def objective(trial):
 
 
 def main():
-
 
     print(f"Optimizing hyperparameters for XGBoost model with {args.n_trials} trials")
 
@@ -154,7 +160,6 @@ def main():
         print("  Params: ")
         for key, value in trial.params.items():
             print("    {}: {}".format(key, value))
-
 
 
 if __name__ == "__main__":
@@ -203,10 +208,6 @@ if __name__ == "__main__":
         x_val_gpu_EVEN = cp.array(x_val_EVEN)
         x_val_gpu_ODD = cp.array(x_val_ODD)
         del x_train_EVEN, y_train_EVEN, w_train_EVEN, x_train_ODD, y_train_ODD, w_train_ODD, x_val_EVEN, x_val_ODD
-
-
-
-
 
     main()
 
