@@ -1,13 +1,9 @@
 Analysis/python/*.pdf
 Training/python/*.db
-Analysis/python/figs/
-Analysis/python/tmp/
-Training/python/DNN_Models
 Training/python/XGB_Models
 */python/__pycache__/
 Training/python/hyperlogs
-Training/python/batch_jobs/*.sh
-Training/python/batch_jobs/*.sub
-Training/python/batch_jobs/logs
-Training/python/batch_jobs/.bash_history
-Training/python/batch_jobs/oldscripts
+Production/.output/PreSelect/*
+Production/.output/Process/*
+Production/.output/ShuffleMerge/*
+Training/condor/optimisation/logs

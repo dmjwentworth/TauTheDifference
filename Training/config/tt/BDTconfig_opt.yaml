@@ -1,17 +1,17 @@
 Setup:
   input_path: '/vols/cms/dmw25/Lucas_TauTheDifference/Production/.output/ShuffleMerge/qqH/tt'
-  model_outputs: 'XGB_Models/qqH/tt'
+  model_outputs: 'XGB_Models/my_opt/tt'
   model_dir_name: 'model_tt'
 
 param: {
         'objective': 'multi:softmax',
-        'n_estimators': 205,
-        'lambda': 5.584535832964484e-06,
-        'subsample': 0.8403339927715867,
-        'colsample_bytree': 0.5121890197474144,
-        'learning_rate': 0.0627473964975825,
-        'max_depth': 7,
-        'min_child_weight': 8
+        'n_estimators': 700,
+        'lambda': 0.4595857864068693,
+        'subsample': 0.7912247094807593,
+        'colsample_bytree': 0.6057999066908436,
+        'learning_rate': 0.04277325446835571,
+        'max_depth': 5,
+        'min_child_weight': 3
       }
 
 Features:
