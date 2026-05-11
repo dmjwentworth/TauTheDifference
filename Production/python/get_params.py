@@ -24,7 +24,15 @@ def initialise(dictionary, process, dataset):
 
 def create_cfg_out(cfg_in):
     os.makedirs("../config", exist_ok=True)
-    process_dict = {}
+    process_dict = {
+        'Electron_DATA': {},
+        'Muon_DATA': {},
+        'Tau_DATA': {},
+    }
+
+    print(
+        "\033[91mWARNING: DATA samples have to be added by hand\033[0m"
+    )
     
     for dataset in cfg_in.keys():
         # Ignore all of Irene's samples

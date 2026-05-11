@@ -1,14 +1,16 @@
 Setup:
-  eras: ['Run3_2022', 'Run3_2022EE', 'Run3_2023', 'Run3_2023BPix'] # Eras to be used
+  eras: ['Run3_2024'] # Eras to be used
   channel: 'tt'
-  input: '/vols/cms/lcr119/offline/HiggsCP/HiggsDNA/output/Feb_BDT_Njet_update' # HiggsDNA output
-  output: '/vols/cms/dmw25/Lucas_TauTheDifference/Production/.output/ShuffleMerge/qqH' # ShuffleMerge output
-  skim_output: '/vols/cms/dmw25/Lucas_TauTheDifference/Production/.output/PreSelect/qqH' # Output for selected (and gen matched) events
-  proc_output: '/vols/cms/dmw25/Lucas_TauTheDifference/Production/.output/Process/qqH' # Temporary output for weighted/labelled events
+  input: '/vols/cms/dmw25/HiggsDNA/output/tt_2024' # HiggsDNA output
+  output: '/vols/cms/dmw25/Lucas_TauTheDifference/Production/.output/ShuffleMerge/Run3_2024' # ShuffleMerge output
+  skim_output: '/vols/cms/dmw25/Lucas_TauTheDifference/Production/.output/PreSelect' # Output for selected (and gen matched) events
+  proc_output: '/vols/cms/dmw25/Lucas_TauTheDifference/Production/.output/Process' # Temporary output for weighted/labelled events
 
 
 Datasets:
   'DYto2L': {gen_match: ['lep', 'jet'], label: [2, 2], proc_id: [12, 13]}
+  'DYto2E': {gen_match: ['lep', 'jet'], label: [2, 2], proc_id: [12, 13]}
+  'DYto2Mu': {gen_match: ['lep', 'jet'], label: [2, 2], proc_id: [12, 13]}
   'DYto2Tau': {gen_match: ['tau'], label: [0], proc_id: [11]}
   'EWKZ': {gen_match: ['tau', 'lep', 'jet'], label: [0, 2, 2], proc_id: [14, 15, 16]}
   'ggH': {gen_match: false, label: 1, proc_id: 100}

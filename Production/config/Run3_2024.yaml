@@ -82,6 +82,23 @@ Process:
       filter_eff: 1.0
       n_eff: 14382095
       x_sec: 15.8
+  Tau_DATA:
+    Tau_Run2024C:
+      extrapolation_factor: 1.27
+    Tau_Run2024D:
+      extrapolation_factor: 1.27
+    Tau_Run2024E:
+      extrapolation_factor: 1.27
+    Tau_Run2024F:
+      extrapolation_factor: 1.27
+    Tau_Run2024G:
+      extrapolation_factor: 1.27
+    Tau_Run2024H:
+      extrapolation_factor: 1.27
+    Tau_Run2024I_v1:
+      extrapolation_factor: 1.27
+    Tau_Run2024I_v2:
+      extrapolation_factor: 1.27
   TTBar:
     TTto2L2Nu:
       filter_eff: 1.0

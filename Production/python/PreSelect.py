@@ -1,8 +1,6 @@
-import numpy as np
 import pandas as pd
 from glob import glob
 import os
-import json
 import yaml
 from utils import get_logger
 from selection import Selector
@@ -59,11 +57,13 @@ def preselect_samples(cfg, era, extrapolateQCD=False):
     # Iterate over processes for the channel
     for process, process_options in channel_cfg.items():
         logger.info(f"Process {process} was requested")
-        if era != 'Run3_2022EE' and process == 'EWKZ':
-            logger.warning(f"Skipping {process} for {era} as unavailable")
+        try:
+            datasets = process_cfg[process]
+        except KeyError:
+            logger.warning(f"Process {process} not found in {era} configuration")
             continue
         # Iterate over datasets for the process
-        for dataset, dataset_info in process_cfg[process].items():
+        for dataset, dataset_info in datasets.items():
             print('-'*140)
             logger.info(f"Processing {dataset}")
             # Load the dataset

@@ -1,25 +1,47 @@
 import pandas as pd
 import numpy as np
 
+# genPartFlav key:
+# 0: jet->tau fake
+# 5: hadronic tau
+# 15: leptonic tau decay (e/mu)
+
+# To protect against divide by zero when calculating selection efficiencies,
+# we can use a decorator to check if the DataFrame is empty before applying the
+# selection. If it is empty, we can skip the selection and return the
+# empty DataFrame directly.
+def check_if_df_empty(func):
+    def wrapper(self, df, *args, **kwargs):
+        if df.empty:
+            self.logger.warning(f"DataFrame is empty before applying {func.__name__} - skipping selection")
+            return df
+        else:
+            return func(self, df, *args, **kwargs)
+    return wrapper
+
+
 class Selector():
 
     def __init__(self, logger):
         self.logger = logger
 
+    @check_if_df_empty
     def select_gen_tau_semilep(self, df):
         n_bef = len(df)
-        df = df[(df['genPartFlav_1'] == 15) & (df['genPartFlav_2'] == 5)] # tau->mu decay and hadronic tau
+        df = df[(df['genPartFlav_1'] == 15) & (df['genPartFlav_2'] == 5)] # tau->mu/e decay and hadronic tau
         n_after = len(df)
         self.logger.debug(f"SemiLeptonic Channel Tau Gen Matching: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def select_gen_lepton_semilep(self, df):
         n_bef = len(df)
         df = df[(df['genPartFlav_1'] != 15) & (df['genPartFlav_2'] != 5) & (df['genPartFlav_2'] != 0)] # both prompt electrons/muons
         n_after = len(df)
-        self.logger.debug(f"SemiLeptonic Channel Muon Gen Matching: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
+        self.logger.debug(f"SemiLeptonic Channel Lepton Gen Matching: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def select_gen_jet_semilep(self, df):
         n_bef = len(df)
         df = df[df['genPartFlav_2'] == 0] # hadronic tau is a jet fake
@@ -27,6 +49,7 @@ class Selector():
         self.logger.debug(f"SemiLeptonic Channel Jet Gen Matching: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def select_gen_tau_hadronic(self, df):
         n_bef = len(df)
         df = df[(df['genPartFlav_1'] == 5) & (df['genPartFlav_2'] == 5)] # tau->mu decay and hadronic tau
@@ -34,6 +57,7 @@ class Selector():
         self.logger.debug(f"Hadronic Channel Tau Gen Matching: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def select_gen_notjet_semilep(self, df):
         n_bef = len(df)
         df = df[(df['genPartFlav_2'] != 0)] # tau->mu decay and hadronic tau
@@ -41,13 +65,15 @@ class Selector():
         self.logger.debug(f"Hadronic Channel not Jet Gen Matching: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def select_gen_lepton_hadronic(self, df):
         n_bef = len(df)
         df = df[(df['genPartFlav_1'] != 5) & (df['genPartFlav_2'] != 5) & (df['genPartFlav_1'] != 0) & (df['genPartFlav_2'] != 0)]
         n_after = len(df)
-        self.logger.debug(f"Hadronic Channel Muon Gen Matching: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
+        self.logger.debug(f"Hadronic Channel Lepton Gen Matching: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def select_gen_jet_hadronic(self, df):
         n_bef = len(df)
         df = df[(df['genPartFlav_1'] == 0) | (df['genPartFlav_2'] == 0)] # either hadronic tau is a jet fake
@@ -55,6 +81,7 @@ class Selector():
         self.logger.debug(f"Hadronic Channel Jet Gen Matching: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def select_id_tt(self, df, sel_cfg):
         n_bef = len(df)
         # VSjet cuts
@@ -70,6 +97,7 @@ class Selector():
         self.logger.debug(f"DiTau ID Selection: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def select_id_mt(self, df, sel_cfg):
         n_bef = len(df)
         # Iso cut
@@ -82,6 +110,7 @@ class Selector():
         self.logger.debug(f"MuTau ID Selection: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def select_id_et(self, df, sel_cfg):
         n_bef = len(df)
         # Iso cut
@@ -94,6 +123,7 @@ class Selector():
         self.logger.debug(f"ETau ID Selection: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def select_os(self, df, os):
         n_bef = len(df)
         df = df[df['os'] == os]
@@ -143,6 +173,8 @@ class Selector():
         df = df[df['m_vis']>40]
         return df
 
+
+    @check_if_df_empty
     def ditau_trigger_match(self, df, triggers):
         n_bef = len(df)
         if ('trg_doubletau' and 'trg_doubletauandjet') in triggers:
@@ -154,6 +186,7 @@ class Selector():
         self.logger.debug(f"DiTau Trigger Matching: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def mutau_trigger_match(self, df, triggers):
         n_bef = len(df)
         if 'trg_singlemuon' in triggers:
@@ -164,6 +197,7 @@ class Selector():
         self.logger.debug(f"MuTau Trigger Matching: {(n_after/n_bef)*100:.2f}% kept- {n_after} events remaining")
         return df
 
+    @check_if_df_empty
     def etau_trigger_match(self, df, triggers):
         n_bef = len(df)
         if ('trg_singleelectron') in triggers:
@@ -196,6 +230,7 @@ class Selector():
         self.logger.debug("CP reweighting applied")
         return df
 
+
     def abs_eta(self, df):
         df['abs_eta_1'] = df['eta_1'].abs()
         self.logger.debug("Applied absolute eta_1")
@@ -208,6 +243,7 @@ class Selector():
         self.logger.debug("Capped number of jets at 3")
         return df
 
+    @check_if_df_empty
     def mt_cut(self, df):
         # cut mT < 70 GeV
         cut = 70

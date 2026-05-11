@@ -6,4 +6,5 @@ Training/python/hyperlogs
 Production/.output/PreSelect/*
 Production/.output/Process/*
 Production/.output/ShuffleMerge/*
+Production/python/HTCondor
 Training/condor/optimisation/logs
