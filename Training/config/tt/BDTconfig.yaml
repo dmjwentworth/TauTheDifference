@@ -1,7 +1,7 @@
 Setup:
-  input_path: '/vols/cms/dmw25/Lucas_TauTheDifference/Production/.output/ShuffleMerge/qqH/tt'
-  model_outputs: 'XGB_Models/qqH/tt'
-  model_dir_name: 'model_tt'
+  input_path: '/vols/cms/dmw25/Lucas_TauTheDifference/Production/.output/ShuffleMerge/Run3_2024/tt'
+  model_outputs: 'XGB_Models/Run3_2024/tt'
+  model_dir_name: 'first'
 
 param: {
         'objective': 'multi:softmax',

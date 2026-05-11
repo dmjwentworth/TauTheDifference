@@ -1,6 +1,5 @@
-import xgboost as xgb
 from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.metrics import accuracy_score
 import pandas as pd
 import os
 import yaml
