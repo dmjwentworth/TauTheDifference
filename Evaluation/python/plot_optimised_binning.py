@@ -11,14 +11,13 @@ import argparse
 def get_args():
     parser = argparse.ArgumentParser(description="XGBoost Classifier Evaluation")
     parser.add_argument('--channel', type=str, help="Channel to train", required=True)
+    parser.add_argument('--lumi', type=float, default=62.4, help="For plot label only")
     return parser.parse_args()
 
 # Plotting style
 plt.style.use(hep.style.ROOT)
 plt.rcParams.update({"font.size": 14})
 
-# Luminosity
-lumi = 62.4
 
 def AMS(S, B, b0=0):
     ams = np.sqrt(2*((S+B+b0)*np.log(1+S/(B+b0))-S))
@@ -191,9 +190,9 @@ $\tau_h\tau_h$ channel"""
     plt.savefig(os.path.join(model_dir, 'plots', f"Optimised_Higgs_score.pdf"))
 
 
-
 if __name__ == "__main__":
     args = get_args()
+    lumi = args.lumi
     cfg = yaml.safe_load(open("../config/config.yaml"))
     # Load the correct config for the channel
     if args.channel == 'tt':

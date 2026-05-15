@@ -1,4 +1,3 @@
-import xgboost as xgb
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score
 import pandas as pd
