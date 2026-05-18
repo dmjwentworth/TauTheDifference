@@ -1,0 +1,154 @@
+Params:
+  Luminosity: 109080
+Process:
+  DYto2E:
+    DYto2E_MLL_50_0J_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 162197196
+      x_sec: 2094.2000000000003
+    DYto2E_MLL_50_1J_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 162197196
+      x_sec: 2094.2000000000003
+    DYto2E_MLL_50_2J_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 162197196
+      x_sec: 2094.2000000000003
+    DYto2E_MLL_50_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 162197196
+      x_sec: 2094.2000000000003
+  DYto2Mu:
+    DYto2Mu_MLL_50_0J_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 164095711
+      x_sec: 2094.2000000000003
+    DYto2Mu_MLL_50_1J_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 164095711
+      x_sec: 2094.2000000000003
+    DYto2Mu_MLL_50_2J_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 164095711
+      x_sec: 2094.2000000000003
+    DYto2Mu_MLL_50_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 164095711
+      x_sec: 2094.2000000000003
+  DYto2Tau:
+    DYto2Tau_MLL_50_0J_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 116466835
+      x_sec: 2094.2000000000003
+    DYto2Tau_MLL_50_1J_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 116466835
+      x_sec: 2094.2000000000003
+    DYto2Tau_MLL_50_2J_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 116466835
+      x_sec: 2094.2000000000003
+    DYto2Tau_MLL_50_amcatnloFXFX:
+      filter_eff: 1.0
+      n_eff: 116466835
+      x_sec: 2094.2000000000003
+  Diboson:
+    WW:
+      filter_eff: 1.0
+      n_eff: 32002627
+      x_sec: 122.27052
+    WZ:
+      filter_eff: 1.0
+      n_eff: 15275182
+      x_sec: 41.1474
+    ZZ:
+      filter_eff: 1.0
+      n_eff: 2399642
+      x_sec: 19.431
+  ST:
+    ST_tW_antitop_2L2Nu:
+      filter_eff: 1.0
+      n_eff: 7501499
+      x_sec: 3.8
+    ST_tW_antitop_LNu2Q:
+      filter_eff: 1.0
+      n_eff: 14702865
+      x_sec: 15.9
+    ST_tW_top_2L2Nu:
+      filter_eff: 1.0
+      n_eff: 7500406
+      x_sec: 3.8
+    ST_tW_top_LNu2Q:
+      filter_eff: 1.0
+      n_eff: 14382095
+      x_sec: 15.8
+  Tau_DATA:
+    Tau_Run2024C:
+      extrapolation_factor: 1.27
+    Tau_Run2024D:
+      extrapolation_factor: 1.27
+    Tau_Run2024E:
+      extrapolation_factor: 1.27
+    Tau_Run2024F:
+      extrapolation_factor: 1.27
+    Tau_Run2024G:
+      extrapolation_factor: 1.27
+    Tau_Run2024H:
+      extrapolation_factor: 1.27
+    Tau_Run2024I_v1:
+      extrapolation_factor: 1.27
+    Tau_Run2024I_v2:
+      extrapolation_factor: 1.27
+  TTBar:
+    TTto2L2Nu:
+      filter_eff: 1.0
+      n_eff: 233169567
+      x_sec: 98.04387875606875
+    TTtoLNu2Q:
+      filter_eff: 1.0
+      n_eff: 240281605
+      x_sec: 405.74895682981236
+  VBFH:
+    VBFHToTauTau_UncorrelatedDecay_Filtered:
+      filter_eff: 0.4091
+      n_eff: 27349658
+      x_sec: 0.2558
+  VH:
+    WminusHToTauTau_UncorrelatedDecay_Filtered:
+      filter_eff: 0.3944
+      n_eff: 3103814
+      x_sec: 0.03561
+    WplusHToTauTau_UncorrelatedDecay_Filtered:
+      filter_eff: 0.3743
+      n_eff: 4300010
+      x_sec: 0.05575
+    ZHToTauTau_UncorrelatedDecay_Filtered:
+      filter_eff: 0.3933
+      n_eff: 3800028
+      x_sec: 0.0592
+  WJets:
+    WtoENu_madgraphMLM:
+      filter_eff: 1.0
+      n_eff: 250407615
+      x_sec: 21141.699999999997
+    WtoMuNu_madgraphMLM:
+      filter_eff: 1.0
+      n_eff: 212623581
+      x_sec: 21141.699999999997
+    WtoTauNu_madgraphMLM:
+      filter_eff: 1.0
+      n_eff: 241019596
+      x_sec: 21141.699999999997
+  ggH:
+    GluGluHTo2Tau_UncorrelatedDecay_CPodd_Filtered_ProdAndDecay:
+      filter_eff: 0.3848
+      n_eff: 108446079
+      x_sec: 3.2759
+    GluGluHTo2Tau_UncorrelatedDecay_MM_Filtered_ProdAndDecay:
+      filter_eff: 0.3848
+      n_eff: 108446079
+      x_sec: 3.2759
+    GluGluHTo2Tau_UncorrelatedDecay_SM_Filtered_ProdAndDecay:
+      filter_eff: 0.3847
+      n_eff: 108446079
+      x_sec: 3.2759

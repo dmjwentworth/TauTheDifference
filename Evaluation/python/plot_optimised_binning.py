@@ -30,7 +30,7 @@ def AMS(S, B, b0=0):
     return ams
 
 
-def plot_score(cfg, parity, channel):
+def plot_score(cfg, parity, channel, n_bins=5):
     # Load the model predictions
     model_dir = os.path.join(cfg['model_path'], cfg['model_name'], parity)
     pred_df = pd.read_parquet(os.path.join(model_dir, 'EVAL_predictions.parquet'))
@@ -60,7 +60,6 @@ def plot_score(cfg, parity, channel):
     higgs = pred_df[(pred_df['process_id'] == 100) | (pred_df['process_id'] == 101) | (pred_df['process_id'] == 102)]
 
     # Split into n bins with equal number of weighted signal
-    n_bins = 5
     w_perc = DescrStatsW(higgs['pred_1'], weights=higgs['weight']).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
     bins = np.concatenate([[0.25], np.array(w_perc), [1]])
 
@@ -131,7 +130,7 @@ $\tau_h\tau_h$ channel"""
     plt.savefig(os.path.join(model_dir, 'plots', f"Optimised_Higgs_score.pdf"))
 
 
-def plot_separate(cfg, parity, channel, category):
+def plot_separate(cfg, parity, channel, category, n_bins=5):
     # Load the model predictions
     model_dir = os.path.join(cfg['model_path'], cfg['model_name'], parity)
     pred_df = pd.read_parquet(os.path.join(model_dir, 'EVAL_predictions.parquet'))
@@ -164,7 +163,6 @@ def plot_separate(cfg, parity, channel, category):
         total_sig = pd.concat([VBF, VH])
 
     # Split into n bins with equal number of weighted signal
-    n_bins = 5
     w_perc = DescrStatsW(total_sig[f'pred_{category}'], weights=total_sig['weight']).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
     bins = np.concatenate([[0.25], np.array(w_perc), [1]])
 
@@ -240,7 +238,7 @@ $\tau_h\tau_h$ channel"""
     plt.savefig(os.path.join(model_dir, 'plots', f"Optimised_{category}_score.pdf"))
 
 
-def plot_ggH_higgs_score(cfg, parity, channel):
+def plot_ggH_higgs_score(cfg, parity, channel, n_bins=4):
     # Load the model predictions
     model_dir = os.path.join(cfg['model_path'], cfg['model_name'], parity)
     pred_df = pd.read_parquet(os.path.join(model_dir, 'EVAL_predictions.parquet'))
@@ -268,7 +266,6 @@ def plot_ggH_higgs_score(cfg, parity, channel):
     total_sig = ggH
 
     # Split into n bins with equal number of weighted signal
-    n_bins = 4
     w_perc = DescrStatsW(total_sig['pred_1'], weights=total_sig['weight']).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
     bins = np.concatenate([[0.25], np.array(w_perc), [1]])
 
@@ -340,7 +337,7 @@ $\tau_h\tau_h$ channel"""
     plt.savefig(os.path.join(model_dir, 'plots', f"find_ggH_Higgs_bins.pdf"))
 
 
-def plot_qqH_higgs_score(cfg, parity, channel):
+def plot_qqH_higgs_score(cfg, parity, channel, n_bins=3):
     # Load the model predictions
     model_dir = os.path.join(cfg['model_path'], cfg['model_name'], parity)
     pred_df = pd.read_parquet(os.path.join(model_dir, 'EVAL_predictions.parquet'))
@@ -368,7 +365,6 @@ def plot_qqH_higgs_score(cfg, parity, channel):
     total_sig = pd.concat([VBF, VH])
 
     # Split into n bins with equal number of weighted signal
-    n_bins = 3
     w_perc = DescrStatsW(total_sig['pred_1'], weights=total_sig['weight']).quantile(np.linspace(0, 1, n_bins+1)[1:-1]) # percentiles
     bins = np.concatenate([[0.25], np.array(w_perc), [1]])
 

@@ -60,6 +60,8 @@ def label_df(df, class_label, proc_id, era, gen_match='inc'):
         df['era'] = 3
     elif era == 'Run3_2023BPix':
         df['era'] = 4
+    elif era == 'Run3_2024':
+        df['era'] = 5
     else:
         df['era'] = -1
     logger.debug(f"Assigned era label for {era}")
@@ -72,6 +74,7 @@ def reweight_mc(df, xsec, n_eff, lumi):
     df['weight'] *= process_factor
     logger.debug(f"Reweighting to xsec: {xsec}, N_eff: {n_eff}, Luminosity: {lumi}")
     return df
+
 
 def reweight_ewkz(df):
     df['weight'] *= 2.34 # account for fact unavailable beyond 22EE
@@ -95,12 +98,12 @@ def process_samples(cfg, era, extrapolateQCD=False, nosubtraction=False):
     # Iterate over processes for the channel
     for process, process_options in channel_cfg.items():
         logger.info(f"Loading skimmed datasets for {process}")
-        if process == 'EWKZ':
-            if era != 'Run3_2022EE':
-                logger.warning(f"Skipping {process} for {era} as unavailable")
-                continue
-        # Iterate over datasets for the proces
-        for dataset, dataset_info in process_cfg[process].items():
+        try:
+            datasets = process_cfg[process]
+        except KeyError:
+            logger.warning(f"Process {process} not found for {era}. Skipping.")
+            continue
+        for dataset, dataset_info in datasets.items():
             print('-'*140)
             logger.info(f"Processing {dataset}")
             # GEN MATCHED SAMPLES
@@ -187,3 +190,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

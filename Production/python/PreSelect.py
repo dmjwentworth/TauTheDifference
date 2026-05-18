@@ -13,6 +13,7 @@ def get_args():
     parser = argparse.ArgumentParser(description="Select events of interest from HiggsDNA outputs for classifier training")
     parser.add_argument('--channel', type=str, help="Channel to process", required=True)
     parser.add_argument('--debug', action='store_true', help="Enable debug mode")
+    parser.add_argument('--yaml', type=str, help="Path to era-wise YAML configuration file", default=None)
     parser.add_argument('--extrapolate', action='store_true', help="Extrapolate QCD")
     return parser.parse_args()
 
@@ -20,7 +21,6 @@ def get_args():
 args = get_args()
 logger = get_logger(debug=args.debug)
 
-# Preselection of HiggsDNA ouputs for classifier training
 
 def save_skims(df, cfg, era, sample, gen_match='inc', extrapolate=False, logger=logger):
     # Drop unwanted features
@@ -41,7 +41,8 @@ def save_skims(df, cfg, era, sample, gen_match='inc', extrapolate=False, logger=
     logger.info(f"{len(df)} events saved to {file_path.split(channel+'/')[1]}")
     return file_path
 
-def preselect_samples(cfg, era, extrapolateQCD=False):
+
+def preselect_samples(cfg, era, era_yaml_path=None, extrapolateQCD=False):
     # Preprocessing for signal background samples (skimming step)
     print('\n')
     print('*'*140)
@@ -52,18 +53,23 @@ def preselect_samples(cfg, era, extrapolateQCD=False):
     print('*'*140, '\n')
     # Load configuration for the era, process and channel
     channel = cfg["Setup"]["channel"]
-    era_cfg = yaml.safe_load(open(f"../config/{era}.yaml"))
+    if era_yaml_path:
+        era_cfg = yaml.safe_load(open(era_yaml_path))
+    else:
+        era_cfg = yaml.safe_load(open(f"../config/{era}.yaml"))
     channel_cfg = cfg[f'Datasets'] # Processes and Gen matching
     process_cfg = era_cfg['Process'] # For each Process: Datasets, N_eff, x_sec etc
     selector = Selector(logger)
     # Iterate over processes for the channel
     for process, process_options in channel_cfg.items():
         logger.info(f"Process {process} was requested")
-        if era != 'Run3_2022EE' and process == 'EWKZ':
-            logger.warning(f"Skipping {process} for {era} as unavailable")
+        try:
+            datasets = process_cfg[process]
+        except KeyError:
+            logger.warning(f"Process {process} not found in {era} configuration")
             continue
         # Iterate over datasets for the process
-        for dataset, dataset_info in process_cfg[process].items():
+        for dataset in datasets.keys():
             print('-'*140)
             logger.info(f"Processing {dataset}")
             # Load the dataset, which may be split into multiple parquet files
@@ -144,7 +150,7 @@ def main():
     # Load configuration for the desired channel
     cfg = yaml.safe_load(open(f"../config/config_{args.channel}.yaml"))
     for era in cfg['Setup']['eras']:
-        preselect_samples(cfg, era, args.extrapolate)
+        preselect_samples(cfg, era, args.yaml, args.extrapolate)
 
 
 if __name__ == "__main__":
